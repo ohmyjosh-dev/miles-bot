@@ -1,4 +1,4 @@
-// database.ts
+// src/database.ts
 import sqlite3 from "sqlite3";
 import { open, Database } from "sqlite";
 
@@ -16,13 +16,27 @@ export async function getDbConnection(): Promise<Database> {
     driver: sqlite3.Database,
   });
 
-  // Create the table if it doesn't exist
+  // Create the campaigns table if it doesn't exist
+  await db.exec(`
+    CREATE TABLE IF NOT EXISTS campaigns (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      guild_id TEXT NOT NULL,
+      campaign_name TEXT NOT NULL,
+      description TEXT NOT NULL,
+      UNIQUE(guild_id, campaign_name)
+    );
+  `);
+
+  // Modify the milesbot_recaps table to include campaign_id and guild_id
   await db.exec(`
     CREATE TABLE IF NOT EXISTS milesbot_recaps (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      campaignName TEXT NOT NULL,
-      title TEXT NOT NULL,
-      recap TEXT NOT NULL,
+      guild_id TEXT NOT NULL,
+      campaign_id INTEGER NOT NULL,
+      recap_title TEXT NOT NULL,
+      recap_link TEXT NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (campaign_id) REFERENCES campaigns(id)
     );
   `);
 

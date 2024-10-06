@@ -1,3 +1,4 @@
+// config
 import dotenv from "dotenv";
 import { environment } from "./defs";
 
