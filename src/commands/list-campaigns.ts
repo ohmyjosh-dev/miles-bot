@@ -1,10 +1,7 @@
 // src/commands/list-campaigns.ts
-import {
-  ChatInputCommandInteraction,
-  SlashCommandBuilder,
-  EmbedBuilder,
-} from "discord.js";
+import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 import { getDbConnection } from "../database";
+import { createErrorEmbed, createSuccessEmbed } from "../utils";
 
 export const data = new SlashCommandBuilder()
   .setName("miles-list-campaigns")
@@ -23,41 +20,35 @@ export async function execute(interaction: ChatInputCommandInteraction) {
   try {
     const db = await getDbConnection();
     const campaigns = await db.all(
-      `SELECT campaign_name, description FROM campaigns WHERE guild_id = ?`,
+      `SELECT id, campaign_name, description FROM campaigns WHERE guild_id = ?`,
       [guildId]
     );
 
     if (campaigns.length === 0) {
-      const embed = new EmbedBuilder()
-        .setTitle("No Campaigns Found ❌")
-        .setDescription("There are no campaigns in this server.")
-        .setColor(0xffa500)
-        .setTimestamp();
+      const embed = createErrorEmbed(
+        "No Campaigns Found ❌",
+        "There are no campaigns in this server."
+      );
 
       return interaction.reply({ embeds: [embed] });
     }
 
-    const embed = new EmbedBuilder()
-      .setTitle("Campaigns 📜")
-      .setColor(0x00ae86)
-      .setTimestamp();
+    const embed = createSuccessEmbed("Campaigns 📜");
 
     campaigns.forEach((campaign) => {
       embed.addFields({
         name: campaign.campaign_name,
-        value: campaign.description,
+        value: `${campaign.description}\n` + `\`id: ${campaign.id}\``,
         inline: false,
       });
     });
 
     await interaction.reply({ embeds: [embed] });
   } catch (error) {
-    console.error(error);
-    const embed = new EmbedBuilder()
-      .setTitle("Error ❌")
-      .setDescription("There was an error retrieving the campaigns.")
-      .setColor(0xff0000)
-      .setTimestamp();
+    const embed = createErrorEmbed(
+      "Error ❌",
+      "There was an error retrieving the campaigns."
+    );
 
     await interaction.reply({ embeds: [embed], ephemeral: true });
   }

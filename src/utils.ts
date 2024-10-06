@@ -105,13 +105,18 @@ export async function handleError(
  */
 export function createErrorEmbed(
   title: string,
-  description: string
+  description?: string
 ): EmbedBuilder {
-  return new EmbedBuilder()
+  const embed = new EmbedBuilder()
     .setTitle(title)
-    .setDescription(description)
-    .setColor(0xff0000) // Red color
+    .setColor(0xff0000)
     .setTimestamp();
+
+  if (description) {
+    embed.setDescription(description);
+  }
+
+  return embed;
 }
 
 /**
@@ -126,7 +131,7 @@ export function createSuccessEmbed(
 ): EmbedBuilder {
   const embed = new EmbedBuilder()
     .setTitle(title)
-    .setColor(0x00ae86) // Green color
+    .setColor(0x00ae86)
     .setTimestamp();
 
   if (description) {

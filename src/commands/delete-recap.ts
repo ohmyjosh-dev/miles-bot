@@ -41,6 +41,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     );
     return interaction.reply({ embeds: [embed], ephemeral: true });
   }
+
   // Extract and validate the recap_id option
   const recapIdInput = interaction.options.getString("recap_id", true).trim();
 
