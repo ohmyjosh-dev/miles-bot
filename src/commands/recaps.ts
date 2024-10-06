@@ -4,6 +4,7 @@ import {
   EmbedBuilder,
 } from "discord.js";
 import { getDbConnection } from "../database";
+import { createSuccessEmbed } from "../utils";
 
 export const data = new SlashCommandBuilder()
   .setName("miles-recaps")
@@ -52,17 +53,15 @@ export async function execute(interaction: ChatInputCommandInteraction) {
       );
     }
 
-    const embed = new EmbedBuilder()
-      .setTitle(`Latest Recaps for ${campaignName}`)
-      .setColor(0x00ae86)
-      .setTimestamp();
+    const embed = createSuccessEmbed(`Latest Recaps for ${campaignName}`);
+    embed.setTitle(`Latest Recaps for ${campaignName}`);
+    embed.setColor(0x00ae86);
+    embed.setTimestamp();
 
     recaps.forEach((recap) => {
       embed.addFields({
         name: recap.recap_title,
-        value: `[Link](${recap.recap_link}) • <t:${Math.floor(
-          new Date(recap.created_at).getTime() / 1000
-        )}:R>`,
+        value: `[Open Recap](${recap.recap_link})\n` + `\`id: ${recap.id}\``,
       });
     });
 

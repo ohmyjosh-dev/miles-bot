@@ -122,11 +122,16 @@ export function createErrorEmbed(
  */
 export function createSuccessEmbed(
   title: string,
-  description: string
+  description?: string
 ): EmbedBuilder {
-  return new EmbedBuilder()
+  const embed = new EmbedBuilder()
     .setTitle(title)
-    .setDescription(description)
     .setColor(0x00ae86) // Green color
     .setTimestamp();
+
+  if (description) {
+    embed.setDescription(description);
+  }
+
+  return embed;
 }

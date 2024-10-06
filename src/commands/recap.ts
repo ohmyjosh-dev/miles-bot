@@ -5,6 +5,7 @@ import {
   handleError,
   ensureGuild,
   createErrorEmbed,
+  createSuccessEmbed,
 } from "../utils";
 import { getDbConnection } from "../database";
 import { EmbedBuilder } from "discord.js";
@@ -48,12 +49,16 @@ export async function execute(interaction: ChatInputCommandInteraction) {
       return interaction.reply({ embeds: [embed] });
     }
 
-    const embed = new EmbedBuilder()
-      .setTitle(recap.recap_title)
-      .setURL(recap.recap_link)
-      .setTimestamp(new Date(recap.created_at))
-      .setFooter({ text: `Campaign: ${campaignName}` })
-      .setColor(0x00ae86);
+    const embed = createSuccessEmbed(recap.recap_title);
+
+    embed.setURL(recap.recap_link);
+    embed.setTimestamp(new Date(recap.created_at));
+    embed.setFooter({ text: `Campaign: ${campaignName}` });
+    embed.addFields({
+      name: "metadata:",
+      value: `\`id: ${recap.id}\``,
+      inline: true,
+    });
 
     await interaction.reply({ embeds: [embed] });
   } catch (error) {
