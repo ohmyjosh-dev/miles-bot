@@ -2,9 +2,11 @@
 import sqlite3 from "sqlite3";
 import { open, Database } from "sqlite";
 
-let db: Database | null = null;
+let db: Database<sqlite3.Database, sqlite3.Statement> | null = null;
 
-export async function getDbConnection(): Promise<Database> {
+export async function getDbConnection(): Promise<
+  Database<sqlite3.Database, sqlite3.Statement>
+> {
   if (db) {
     return db;
   }
@@ -27,7 +29,7 @@ export async function getDbConnection(): Promise<Database> {
     );
   `);
 
-  // Modify the milesbot_recaps table to include campaign_id and guild_id
+  // Create the milesbot_recaps table if it doesn't exist
   await db.exec(`
     CREATE TABLE IF NOT EXISTS milesbot_recaps (
       id INTEGER PRIMARY KEY AUTOINCREMENT,

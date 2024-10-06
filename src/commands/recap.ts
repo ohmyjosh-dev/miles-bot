@@ -1,9 +1,13 @@
+// src/commands/recap.ts
+import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 import {
-  ChatInputCommandInteraction,
-  SlashCommandBuilder,
-  EmbedBuilder,
-} from "discord.js";
+  getCampaignId,
+  handleError,
+  ensureGuild,
+  createErrorEmbed,
+} from "../utils";
 import { getDbConnection } from "../database";
+import { EmbedBuilder } from "discord.js";
 
 export const data = new SlashCommandBuilder()
   .setName("miles-recap")
@@ -16,29 +20,19 @@ export const data = new SlashCommandBuilder()
   );
 
 export async function execute(interaction: ChatInputCommandInteraction) {
+  const guildId = await ensureGuild(interaction);
+  if (!guildId) return;
+
   const campaignName = interaction.options
     .getString("campaign_name", true)
     .trim();
-  const guildId = interaction.guildId;
-
-  if (!guildId) {
-    return interaction.reply("This command can only be used within a server.");
-  }
 
   try {
     const db = await getDbConnection();
 
-    // Get the campaign ID
-    const campaign = await db.get(
-      `SELECT id FROM campaigns WHERE guild_id = ? AND campaign_name = ?`,
-      [guildId, campaignName]
-    );
-
-    if (!campaign) {
-      return interaction.reply(`Campaign **${campaignName}** does not exist.`);
-    }
-
-    const campaignId = campaign.id;
+    // Get the campaign ID using utility function
+    const campaignId = await getCampaignId(guildId, campaignName, interaction);
+    if (!campaignId) return;
 
     // Get the latest recap
     const recap = await db.get(
@@ -47,20 +41,26 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     );
 
     if (!recap) {
-      return interaction.reply(
+      const embed = createErrorEmbed(
+        "No Recaps Found ❌",
         `No recaps found for campaign **${campaignName}**.`
       );
+      return interaction.reply({ embeds: [embed] });
     }
 
     const embed = new EmbedBuilder()
       .setTitle(recap.recap_title)
       .setURL(recap.recap_link)
       .setTimestamp(new Date(recap.created_at))
-      .setFooter({ text: `Campaign: ${campaignName}` });
+      .setFooter({ text: `Campaign: ${campaignName}` })
+      .setColor(0x00ae86);
 
     await interaction.reply({ embeds: [embed] });
   } catch (error) {
-    console.error(error);
-    await interaction.reply("There was an error retrieving the recap.");
+    await handleError(
+      interaction,
+      error,
+      "There was an error retrieving the recap."
+    );
   }
 }

@@ -1,4 +1,13 @@
+// src/commands/create-recap.ts
 import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
+import {
+  getCampaignId,
+  handleError,
+  ensureGuild,
+  isValidURL,
+  createSuccessEmbed,
+  createErrorEmbed,
+} from "../utils";
 import { getDbConnection } from "../database";
 
 export const data = new SlashCommandBuilder()
@@ -24,71 +33,78 @@ export const data = new SlashCommandBuilder()
   );
 
 export async function execute(interaction: ChatInputCommandInteraction) {
+  // Ensure the command is executed within a guild
+  const guildId = await ensureGuild(interaction);
+  if (!guildId) return;
+
+  // Extract and trim command options
   const campaignName = interaction.options
     .getString("campaign_name", true)
     .trim();
   const recapTitle = interaction.options.getString("recap_title", true).trim();
   const recapLink = interaction.options.getString("recap_link", true).trim();
-  const guildId = interaction.guildId;
 
-  if (!guildId) {
-    return interaction.reply("This command can only be used within a server.");
-  }
-
-  // Validate the recap link
-  try {
-    new URL(recapLink);
-  } catch {
-    return interaction.reply("Please provide a valid URL for the recap link.");
+  // Validate the recap link URL
+  if (!isValidURL(recapLink)) {
+    const embed = createErrorEmbed(
+      "Invalid URL ❌",
+      "Please provide a valid URL for the recap link."
+    );
+    return interaction.reply({ embeds: [embed] });
   }
 
   try {
     const db = await getDbConnection();
 
-    // Get the campaign ID
-    const campaign = await db.get(
-      `SELECT id FROM campaigns WHERE guild_id = ? AND campaign_name = ?`,
-      [guildId, campaignName]
-    );
+    // Retrieve the campaign ID using the utility function
+    const campaignId = await getCampaignId(guildId, campaignName, interaction);
+    if (!campaignId) return;
 
-    if (!campaign) {
-      return interaction.reply(`Campaign **${campaignName}** does not exist.`);
-    }
-
-    const campaignId = campaign.id;
-
-    // Insert the new recap
+    // Insert the new recap into the database
     await db.run(
       `INSERT INTO milesbot_recaps (guild_id, campaign_id, recap_title, recap_link) VALUES (?, ?, ?, ?)`,
       [guildId, campaignId, recapTitle, recapLink]
     );
 
-    // Ensure only the latest 10 recaps are kept
-    const count = await db.get(
+    // Count the total number of recaps for the campaign
+    const countResult = await db.get<{ count: number }>(
       `SELECT COUNT(*) as count FROM milesbot_recaps WHERE guild_id = ? AND campaign_id = ?`,
       [guildId, campaignId]
     );
 
-    if (count.count > 10) {
-      const recapsToDelete = await db.all(
+    const count = countResult?.count ?? 0;
+
+    // If there are more than 10 recaps, delete the oldest ones
+    if (count > 10) {
+      // Explicitly type recapsToDelete as an array
+      const recapsToDelete: { id: number }[] = await db.all<{ id: number }[]>(
         `SELECT id FROM milesbot_recaps WHERE guild_id = ? AND campaign_id = ? ORDER BY created_at ASC LIMIT ?`,
-        [guildId, campaignId, count.count - 10]
+        [guildId, campaignId, count - 10]
       );
 
-      const deleteIds = recapsToDelete.map((recap) => recap.id);
-      await db.run(
-        `DELETE FROM milesbot_recaps WHERE id IN (${deleteIds
-          .map(() => "?")
-          .join(",")})`,
-        deleteIds
-      );
+      if (recapsToDelete.length > 0) {
+        const deleteIds = recapsToDelete.map((recap) => recap.id);
+        const placeholders = deleteIds.map(() => "?").join(",");
+
+        await db.run(
+          `DELETE FROM milesbot_recaps WHERE id IN (${placeholders})`,
+          deleteIds
+        );
+      }
     }
 
-    await interaction.reply(
+    // Create a success embed and reply to the interaction
+    const embed = createSuccessEmbed(
+      "Recap Created 🎉",
       `Recap **${recapTitle}** added to campaign **${campaignName}**.`
     );
+    await interaction.reply({ embeds: [embed] });
   } catch (error) {
-    console.error(error);
-    await interaction.reply("There was an error creating the recap.");
+    // Handle any errors that occur during the process
+    await handleError(
+      interaction,
+      error,
+      "There was an error creating the recap."
+    );
   }
 }

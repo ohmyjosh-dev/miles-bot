@@ -1,5 +1,12 @@
+// src/commands/create-campaign.ts
 import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 import { getDbConnection } from "../database";
+import {
+  handleError,
+  ensureGuild,
+  createSuccessEmbed,
+  createErrorEmbed,
+} from "../utils";
 
 export const data = new SlashCommandBuilder()
   .setName("miles-create-campaign")
@@ -18,15 +25,13 @@ export const data = new SlashCommandBuilder()
   );
 
 export async function execute(interaction: ChatInputCommandInteraction) {
+  const guildId = await ensureGuild(interaction);
+  if (!guildId) return;
+
   const campaignName = interaction.options
     .getString("campaign_name", true)
     .trim();
   const description = interaction.options.getString("description", true).trim();
-  const guildId = interaction.guildId;
-
-  if (!guildId) {
-    return interaction.reply("This command can only be used within a server.");
-  }
 
   try {
     const db = await getDbConnection();
@@ -37,17 +42,24 @@ export async function execute(interaction: ChatInputCommandInteraction) {
       [guildId, campaignName, description]
     );
 
-    await interaction.reply(
+    const embed = createSuccessEmbed(
+      "Campaign Created 🎉",
       `Campaign **${campaignName}** created successfully!`
     );
+    await interaction.reply({ embeds: [embed] });
   } catch (error: any) {
     if (error.message.includes("UNIQUE constraint failed")) {
-      await interaction.reply(
+      const embed = createErrorEmbed(
+        "Duplicate Campaign ❌",
         `A campaign with the name **${campaignName}** already exists.`
       );
+      await interaction.reply({ embeds: [embed] });
     } else {
-      console.error(error);
-      await interaction.reply("There was an error creating the campaign.");
+      await handleError(
+        interaction,
+        error,
+        "There was an error creating the campaign."
+      );
     }
   }
 }
