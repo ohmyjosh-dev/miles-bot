@@ -6,6 +6,7 @@ import {
 } from "discord.js";
 import { Database } from "sqlite";
 import { getDbConnection } from "./database";
+import { ERROR_COLOR, SUCCESS_COLOR } from "./defs";
 
 /**
  * Ensures that the interaction is within a guild and returns the guild ID.
@@ -109,7 +110,7 @@ export function createErrorEmbed(
 ): EmbedBuilder {
   const embed = new EmbedBuilder()
     .setTitle(title)
-    .setColor(0xff0000)
+    .setColor(ERROR_COLOR)
     .setTimestamp();
 
   if (description) {
@@ -131,7 +132,7 @@ export function createSuccessEmbed(
 ): EmbedBuilder {
   const embed = new EmbedBuilder()
     .setTitle(title)
-    .setColor(0x00ae86)
+    .setColor(SUCCESS_COLOR)
     .setTimestamp();
 
   if (description) {
