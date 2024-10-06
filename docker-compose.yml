@@ -1,0 +1,11 @@
+version: "3.9"
+services:
+  milesbot:
+    image: milesbot:latest
+    env_file:
+      - .env
+    volumes:
+      - milesbot_data:/app/database
+
+volumes:
+  milesbot_data:

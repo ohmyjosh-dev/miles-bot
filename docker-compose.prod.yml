@@ -1,0 +1,23 @@
+version: "3.9"
+services:
+  milesbot:
+    image: registry.ubuntu-webserver.lan/milesbot:latest
+    secrets:
+      - milesbot_token
+      - milesbot_client_id
+    environment:
+      - DISCORD_TOKEN_FILE=/run/secrets/milesbot_token
+      - DISCORD_CLIENT_ID_FILE=/run/secrets/milesbot_client_id
+      - DATABASE_FILE=/app/database/milesbot.db
+      - BOT_ENV=production
+    volumes:
+      - milesbot_data:/app/database
+
+secrets:
+  milesbot_token:
+    external: true
+  milesbot_client_id:
+    external: true
+
+volumes:
+  milesbot_data:
