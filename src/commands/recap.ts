@@ -41,6 +41,11 @@ export async function execute(interaction: ChatInputCommandInteraction) {
       [guildId, campaignId]
     );
 
+    const campaign = await db.get(
+      `SELECT * FROM campaigns WHERE guild_id = ? AND id = ?`,
+      [guildId, campaignId]
+    );
+
     if (!recap) {
       const embed = createErrorEmbed(
         "No Recaps Found ❌",
@@ -56,7 +61,9 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     embed.setFooter({ text: `Campaign: ${campaignName}` });
     embed.addFields({
       name: "metadata:",
-      value: `\`id: ${recap.id}\``,
+      value:
+        `[See all recaps](${campaign.recap_master_link})\n` +
+        `\`id: ${recap.id}\``,
       inline: true,
     });
 

@@ -10,6 +10,7 @@ import {
   ensureGuild,
   createSuccessEmbed,
   createErrorEmbed,
+  isValidURL,
 } from "../utils";
 import { DM_ROLE_NAME } from "../defs";
 
@@ -26,6 +27,12 @@ export const data = new SlashCommandBuilder()
     option
       .setName("description")
       .setDescription("A description of the campaign.")
+      .setRequired(true)
+  )
+  .addStringOption((option) =>
+    option
+      .setName("recap_master_link")
+      .setDescription("The link to all recaps for the campaign.")
       .setRequired(true)
   );
 
@@ -53,13 +60,24 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     .trim();
   const description = interaction.options.getString("description", true).trim();
 
+  const recapLink = interaction.options.getString("recap_link", true).trim();
+
+  // Validate the recap link URL
+  if (!isValidURL(recapLink)) {
+    const embed = createErrorEmbed(
+      "Invalid URL ❌",
+      "Please provide a valid URL for the recap link."
+    );
+    return interaction.reply({ embeds: [embed] });
+  }
+
   try {
     const db = await getDbConnection();
 
     // Insert the new campaign
     await db.run(
-      `INSERT INTO campaigns (guild_id, campaign_name, description) VALUES (?, ?, ?)`,
-      [guildId, campaignName, description]
+      `INSERT INTO campaigns (guild_id, campaign_name, description) VALUES (?, ?, ?, ?)`,
+      [guildId, campaignName, description, recapLink]
     );
 
     const embed = createSuccessEmbed(

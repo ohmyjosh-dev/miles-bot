@@ -25,6 +25,7 @@ export async function getDbConnection(): Promise<
       guild_id TEXT NOT NULL,
       campaign_name TEXT NOT NULL,
       description TEXT NOT NULL,
+      recap_master_link TEXT NOT NULL,
       UNIQUE(guild_id, campaign_name)
     );
   `);

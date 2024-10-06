@@ -38,7 +38,10 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     campaigns.forEach((campaign) => {
       embed.addFields({
         name: campaign.campaign_name,
-        value: `${campaign.description}\n` + `\`id: ${campaign.id}\``,
+        value:
+          `${campaign.description}\n` +
+          `[See All Recaps](${campaign.recap_master_link})\n` +
+          `\`id: ${campaign.id}\``,
         inline: false,
       });
     });

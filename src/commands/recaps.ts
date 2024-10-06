@@ -4,7 +4,7 @@ import {
   EmbedBuilder,
 } from "discord.js";
 import { getDbConnection } from "../database";
-import { createSuccessEmbed } from "../utils";
+import { createSuccessEmbed, getCampaignId } from "../utils";
 
 export const data = new SlashCommandBuilder()
   .setName("miles-recaps")
@@ -29,21 +29,19 @@ export async function execute(interaction: ChatInputCommandInteraction) {
   try {
     const db = await getDbConnection();
 
-    // Get the campaign ID
-    const campaign = await db.get(
-      `SELECT id FROM campaigns WHERE guild_id = ? AND campaign_name = ?`,
-      [guildId, campaignName]
-    );
-
-    if (!campaign) {
+    const campaignId = await getCampaignId(guildId, campaignName, interaction);
+    if (!campaignId) {
       return interaction.reply(`Campaign **${campaignName}** does not exist.`);
     }
-
-    const campaignId = campaign.id;
 
     // Get the latest 10 recaps
     const recaps = await db.all(
       `SELECT * FROM milesbot_recaps WHERE guild_id = ? AND campaign_id = ? ORDER BY created_at DESC LIMIT 10`,
+      [guildId, campaignId]
+    );
+
+    const campaign = await db.get(
+      `SELECT * FROM campaigns WHERE guild_id = ? AND id = ?`,
       [guildId, campaignId]
     );
 
@@ -61,7 +59,10 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     recaps.forEach((recap) => {
       embed.addFields({
         name: recap.recap_title,
-        value: `[Open Recap](${recap.recap_link})\n` + `\`id: ${recap.id}\``,
+        value:
+          `[Open Recap](${recap.recap_link})\n` +
+          `[See All Recaps](${campaign.recap_master_link})\n` +
+          `\`id: ${recap.id}\``,
       });
     });
 
