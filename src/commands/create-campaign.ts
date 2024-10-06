@@ -1,5 +1,9 @@
 // src/commands/create-campaign.ts
-import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
+import {
+  ChatInputCommandInteraction,
+  SlashCommandBuilder,
+  GuildMember,
+} from "discord.js";
 import { getDbConnection } from "../database";
 import {
   handleError,
@@ -7,6 +11,7 @@ import {
   createSuccessEmbed,
   createErrorEmbed,
 } from "../utils";
+import { DM_ROLE_NAME } from "../defs";
 
 export const data = new SlashCommandBuilder()
   .setName("miles-create-campaign")
@@ -25,9 +30,24 @@ export const data = new SlashCommandBuilder()
   );
 
 export async function execute(interaction: ChatInputCommandInteraction) {
+  // Ensure the command is executed within a guild
   const guildId = await ensureGuild(interaction);
   if (!guildId) return;
 
+  // Check if the user has the "DM" role
+  const member = interaction.member as GuildMember;
+  const hasDmRole = member.roles.cache.some(
+    (role) => role.name === DM_ROLE_NAME
+  );
+  if (!hasDmRole) {
+    const embed = createErrorEmbed(
+      "Insufficient Permissions ❌",
+      "You need the **DM** role to use this command."
+    );
+    return interaction.reply({ embeds: [embed], ephemeral: true });
+  }
+
+  // Extract and trim command options
   const campaignName = interaction.options
     .getString("campaign_name", true)
     .trim();
