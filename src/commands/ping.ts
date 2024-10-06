@@ -1,3 +1,4 @@
+// ping.ts
 import { CommandInteraction, SlashCommandBuilder } from "discord.js";
 
 export const data = new SlashCommandBuilder()

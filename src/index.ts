@@ -1,3 +1,4 @@
+// index.ts
 import { Client, GatewayIntentBits } from "discord.js";
 import { deployCommands } from "./deploy-commands";
 import { commands } from "./commands";
