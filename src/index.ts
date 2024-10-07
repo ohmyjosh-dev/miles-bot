@@ -86,6 +86,9 @@ client.on("messageCreate", (msg) => {
   if (msg.content.toLowerCase().includes("miles")) {
     msg.reply("Who?");
   }
+  if (msg.content.toLowerCase().includes("thursday")) {
+    msg.reply("Thursdays are for D&D! 🎲");
+  }
 });
 
 client.login(config.DISCORD_TOKEN);
