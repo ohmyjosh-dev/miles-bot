@@ -61,28 +61,13 @@ client.on("interactionCreate", async (interaction) => {
         });
       }
     }
-  } else if (interaction.isAutocomplete()) {
-    const { commandName } = interaction;
-
-    const command = commands[commandName as keyof typeof commands];
-    if (!command || typeof command.autocomplete !== "function") {
-      await interaction.respond([]);
-      return;
-    }
-
-    try {
-      await command.autocomplete(interaction as AutocompleteInteraction);
-    } catch (error) {
-      console.error(
-        `Error during autocomplete for command ${commandName}:`,
-        error
-      );
-      await interaction.respond([]);
-    }
   }
 });
 
 client.on("messageCreate", (msg) => {
+  // **1. Ignore Messages from Bots**
+  if (msg.author.bot) return; // If the message author is a bot, exit the handler.
+
   if (msg.content.toLowerCase().includes("miles")) {
     msg.reply("Who?");
   }
