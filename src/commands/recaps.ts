@@ -4,7 +4,7 @@ import {
   EmbedBuilder,
 } from "discord.js";
 import { getDbConnection } from "../database";
-import { createSuccessEmbed, getCampaignId } from "../utils";
+import { createSuccessEmbed, customizeFooter, getCampaignId } from "../utils";
 
 export const data = new SlashCommandBuilder()
   .setName("miles-recaps")
@@ -52,7 +52,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     }
 
     const embed = createSuccessEmbed(`Latest Recaps for ${campaignName}`);
-    embed.setTitle(`Latest Recaps for ${campaignName}`);
+    embed.setFooter(customizeFooter({ text: `Campaign: ${campaignName}` }));
     embed.setColor(0x00ae86);
     embed.setTimestamp();
 

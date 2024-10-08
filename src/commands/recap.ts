@@ -6,9 +6,9 @@ import {
   ensureGuild,
   createErrorEmbed,
   createSuccessEmbed,
+  customizeFooter,
 } from "../utils";
 import { getDbConnection } from "../database";
-import { EmbedBuilder } from "discord.js";
 
 export const data = new SlashCommandBuilder()
   .setName("miles-recap")
@@ -58,7 +58,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
 
     embed.setURL(recap.recap_link);
     embed.setTimestamp(new Date(recap.created_at));
-    embed.setFooter({ text: `Campaign: ${campaignName}` });
+    embed.setFooter(customizeFooter({ text: `Campaign: ${campaignName}` }));
     embed.addFields({
       name: "metadata:",
       value:

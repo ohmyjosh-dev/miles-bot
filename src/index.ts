@@ -2,13 +2,12 @@
 import {
   Client,
   GatewayIntentBits,
-  EmbedBuilder,
   ChatInputCommandInteraction,
-  AutocompleteInteraction,
 } from "discord.js";
 import { deployCommands } from "./deploy-commands";
 import { commands } from "./commands";
 import { config } from "./config";
+import { isDevelopment } from "./utils";
 // import { startSchedulers } from "./scheduler/scheduler"; // Uncomment if you have schedulers
 
 const client = new Client({
@@ -69,9 +68,16 @@ client.on("messageCreate", (msg) => {
   if (msg.author.bot) return; // If the message author is a bot, exit the handler.
 
   if (msg.content.toLowerCase().includes("miles")) {
+    if (isDevelopment) {
+      msg.reply("🛠️ Miles is currently in therapy");
+
+      return;
+    }
+
     msg.reply("Who?");
   }
-  if (msg.content.toLowerCase().includes("thursday")) {
+
+  if (msg.content.toLowerCase().includes("thurs")) {
     msg.reply("Thursdays are for D&D! 🎲");
   }
 });

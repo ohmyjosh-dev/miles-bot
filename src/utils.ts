@@ -2,11 +2,15 @@
 import {
   ChatInputCommandInteraction,
   EmbedBuilder,
-  InteractionReplyOptions,
+  Message,
+  OmitPartialGroupDMChannel,
 } from "discord.js";
 import { Database } from "sqlite";
 import { getDbConnection } from "./database";
-import { ERROR_COLOR, SUCCESS_COLOR } from "./defs";
+import { environment, ERROR_COLOR, SUCCESS_COLOR } from "./defs";
+import { BOT_ENV } from "./config";
+
+export const isDevelopment = BOT_ENV === environment.dev;
 
 /**
  * Ensures that the interaction is within a guild and returns the guild ID.
@@ -131,7 +135,7 @@ export function createSuccessEmbed(
   description?: string
 ): EmbedBuilder {
   const embed = new EmbedBuilder()
-    .setTitle(title)
+    .setTitle(customizeText(title))
     .setColor(SUCCESS_COLOR)
     .setTimestamp();
 
@@ -140,4 +144,16 @@ export function createSuccessEmbed(
   }
 
   return embed;
+}
+
+export function customizeFooter(props: { text: string }): { text: string } {
+  return { text: customizeText(props.text) };
+}
+
+export function customizeText(title: string): string {
+  if (isDevelopment) {
+    return `⚠️ MAINTENANCE MODE: This data is from a test database and is not accurate | ${title} | ${BOT_ENV}`;
+  }
+
+  return title;
 }
