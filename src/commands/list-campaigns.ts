@@ -20,7 +20,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
   try {
     const db = await getDbConnection();
     const campaigns = await db.all(
-      `SELECT id, campaign_name, description FROM campaigns WHERE guild_id = ?`,
+      `SELECT id, campaign_name, description, recap_master_link FROM campaigns WHERE guild_id = ?`,
       [guildId]
     );
 

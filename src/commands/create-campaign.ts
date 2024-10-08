@@ -60,7 +60,9 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     .trim();
   const description = interaction.options.getString("description", true).trim();
 
-  const recapLink = interaction.options.getString("recap_link", true).trim();
+  const recapLink = interaction.options
+    .getString("recap_master_link", true)
+    .trim();
 
   // Validate the recap link URL
   if (!isValidURL(recapLink)) {
@@ -76,13 +78,14 @@ export async function execute(interaction: ChatInputCommandInteraction) {
 
     // Insert the new campaign
     await db.run(
-      `INSERT INTO campaigns (guild_id, campaign_name, description) VALUES (?, ?, ?, ?)`,
+      `INSERT INTO campaigns (guild_id, campaign_name, description, recap_master_link) VALUES (?, ?, ?, ?)`,
       [guildId, campaignName, description, recapLink]
     );
 
     const embed = createSuccessEmbed(
       "Campaign Created 🎉",
-      `Campaign **${campaignName}** created successfully!`
+      `Campaign **${campaignName}** created successfully!\n` +
+        `debug: link: ${recapLink}`
     );
     await interaction.reply({ embeds: [embed] });
   } catch (error: any) {
