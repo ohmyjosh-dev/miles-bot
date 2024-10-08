@@ -32,7 +32,9 @@ export const data = new SlashCommandBuilder()
   .addStringOption((option) =>
     option
       .setName("recap_master_link")
-      .setDescription("The link to all recaps for the campaign.")
+      .setDescription(
+        "The link to all recaps for the campaign. https://example.com"
+      )
       .setRequired(true)
   );
 

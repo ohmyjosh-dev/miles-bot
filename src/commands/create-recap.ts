@@ -33,7 +33,7 @@ export const data = new SlashCommandBuilder()
   .addStringOption((option) =>
     option
       .setName("recap_link")
-      .setDescription("A valid URL link for the recap.")
+      .setDescription("A valid URL link for the recap. https://example.com")
       .setRequired(true)
   );
 
