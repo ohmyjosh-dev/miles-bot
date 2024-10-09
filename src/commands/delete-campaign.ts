@@ -129,6 +129,19 @@ export async function handleDeleteConfirmation(
   try {
     const db = await getDbConnection();
 
+    const campaign = await db.get(
+      `SELECT campaign_name FROM campaigns WHERE id = ? AND guild_id = ?`,
+      [campaignId, guildId]
+    );
+
+    if (!campaign?.campaign_name) {
+      const embed = createErrorEmbed(
+        "Campaign Not Found ❌",
+        `No campaign found with ID **${campaignId}** in this server.`
+      );
+      return interaction.reply({ embeds: [embed], ephemeral: true });
+    }
+
     // Delete the campaign and associated recaps
     await db.run(`DELETE FROM campaigns WHERE id = ? AND guild_id = ?`, [
       campaignId,
@@ -139,7 +152,7 @@ export async function handleDeleteConfirmation(
     ]);
 
     const embed = createErrorEmbed(
-      `Campaign with \`id: ${campaignId} has been deleted Deleted ✅`
+      `Campaign with \`name: ${campaign.campaign_name}\` has been deleted along with all associated recaps✅`
     );
 
     await interaction.reply({
