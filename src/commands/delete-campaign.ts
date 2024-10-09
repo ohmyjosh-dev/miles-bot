@@ -14,6 +14,7 @@ import {
   ensureGuild,
   createErrorEmbed,
   createSuccessEmbed,
+  isValidUUID,
 } from "../utils";
 import { getDbConnection } from "../database";
 import {
@@ -57,9 +58,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     .getString("campaign_id", true)
     .trim();
 
-  // Validate that campaign_id is a number
-  const campaignId = parseInt(campaignIdInput, 10);
-  if (isNaN(campaignId)) {
+  if (!isValidUUID(campaignIdInput)) {
     const embed = createErrorEmbed(
       "Invalid Campaign ID ❌",
       "The provided Campaign ID is not a valid number."
@@ -73,13 +72,13 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     // Check if the campaign exists and belongs to the guild
     const campaign = await db.get(
       `SELECT * FROM campaigns WHERE id = ? AND guild_id = ?`,
-      [campaignId, guildId]
+      [campaignIdInput, guildId]
     );
 
     if (!campaign) {
       const embed = createErrorEmbed(
         "Campaign Not Found ❌",
-        `No campaign found with ID **${campaignId}** in this server.`
+        `No campaign found with ID **${campaignIdInput}** in this server.`
       );
       return interaction.reply({ embeds: [embed], ephemeral: true });
     }
@@ -87,7 +86,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     // Optional: Confirm deletion with the user using buttons
     const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()
-        .setCustomId(`${CONFIRM_DELETE_CAMPAIGN}${campaignId}`)
+        .setCustomId(`${CONFIRM_DELETE_CAMPAIGN}${campaignIdInput}`)
         .setLabel("Confirm Deletion")
         .setStyle(ButtonStyle.Danger),
       new ButtonBuilder()
@@ -121,10 +120,7 @@ export async function handleDeleteConfirmation(
   const guildId = interaction.guildId;
   if (!guildId) return;
 
-  const campaignId = parseInt(
-    interaction.customId.split("_").pop() as string,
-    10
-  );
+  const campaignId = interaction.customId.split("_").pop() as string;
 
   try {
     const db = await getDbConnection();

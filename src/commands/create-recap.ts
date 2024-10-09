@@ -14,6 +14,7 @@ import {
 } from "../utils";
 import { getDbConnection } from "../database";
 import { DM_ROLE_NAME } from "../consts";
+import { randomUUID } from "crypto";
 
 export const data = new SlashCommandBuilder()
   .setName("miles-create-recap")
@@ -74,14 +75,16 @@ export async function execute(interaction: ChatInputCommandInteraction) {
   try {
     const db = await getDbConnection();
 
+    const newRecapId = randomUUID();
+
     // Retrieve the campaign ID using the utility function
     const campaignId = await getCampaignId(guildId, campaignName, interaction);
     if (!campaignId) return;
 
     // Insert the new recap into the database
     await db.run(
-      `INSERT INTO milesbot_recaps (guild_id, campaign_id, recap_title, recap_link) VALUES (?, ?, ?, ?)`,
-      [guildId, campaignId, recapTitle, recapLink]
+      `INSERT INTO milesbot_recaps (id, guild_id, campaign_id, recap_title, recap_link) VALUES (?, ?, ?, ?, ?)`,
+      [newRecapId, guildId, campaignId, recapTitle, recapLink]
     );
 
     // Count the total number of recaps for the campaign

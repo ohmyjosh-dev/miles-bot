@@ -21,7 +21,7 @@ export async function getDbConnection(): Promise<
   // Create the campaigns table if it doesn't exist
   await db.exec(`
     CREATE TABLE IF NOT EXISTS campaigns (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id TEXT PRIMARY KEY,
       guild_id TEXT NOT NULL,
       campaign_name TEXT NOT NULL,
       description TEXT NOT NULL,
@@ -33,9 +33,9 @@ export async function getDbConnection(): Promise<
   // Create the milesbot_recaps table if it doesn't exist
   await db.exec(`
     CREATE TABLE IF NOT EXISTS milesbot_recaps (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      id TEXT PRIMARY KEY,
       guild_id TEXT NOT NULL,
-      campaign_id INTEGER NOT NULL,
+      campaign_id TEXT NOT NULL,
       recap_title TEXT NOT NULL,
       recap_link TEXT NOT NULL,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,

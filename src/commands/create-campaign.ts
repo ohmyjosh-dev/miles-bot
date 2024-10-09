@@ -13,6 +13,7 @@ import {
   isValidURL,
 } from "../utils";
 import { DM_ROLE_NAME } from "../consts";
+import { randomUUID } from "crypto";
 
 export const data = new SlashCommandBuilder()
   .setName("miles-create-campaign")
@@ -78,10 +79,12 @@ export async function execute(interaction: ChatInputCommandInteraction) {
   try {
     const db = await getDbConnection();
 
+    const newCampaignId = randomUUID();
+
     // Insert the new campaign
     await db.run(
-      `INSERT INTO campaigns (guild_id, campaign_name, description, recap_master_link) VALUES (?, ?, ?, ?)`,
-      [guildId, campaignName, description, recapLink]
+      `INSERT INTO campaigns (id, guild_id, campaign_name, description, recap_master_link) VALUES (?, ?, ?, ?, ?)`,
+      [newCampaignId, guildId, campaignName, description, recapLink]
     );
 
     const embed = createSuccessEmbed(

@@ -9,10 +9,11 @@ import {
   ensureGuild,
   createErrorEmbed,
   createSuccessEmbed,
+  isValidUUID,
 } from "../utils";
 import { getDbConnection } from "../database";
 import { config } from "../config"; // Ensure config includes DM_ROLE_ID
-import { DM_ROLE_NAME } from "../defs";
+import { DM_ROLE_NAME } from "../consts";
 
 export const data = new SlashCommandBuilder()
   .setName("miles-delete-recap")
@@ -46,8 +47,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
   const recapIdInput = interaction.options.getString("recap_id", true).trim();
 
   // Validate that recap_id is a number
-  const recapId = parseInt(recapIdInput, 10);
-  if (isNaN(recapId)) {
+  if (!isValidUUID(recapIdInput)) {
     const embed = createErrorEmbed(
       "Invalid Recap ID ❌",
       "The provided Recap ID is not a valid number."
@@ -61,13 +61,13 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     // Check if the recap exists and belongs to the guild
     const recap = await db.get(
       `SELECT * FROM milesbot_recaps WHERE id = ? AND guild_id = ?`,
-      [recapId, guildId]
+      [recapIdInput, guildId]
     );
 
     if (!recap) {
       const embed = createErrorEmbed(
         "Recap Not Found ❌",
-        `No recap found with ID **${recapId}** in this server.`
+        `No recap found with ID **${recapIdInput}** in this server.`
       );
       return interaction.reply({ embeds: [embed], ephemeral: true });
     }
@@ -76,13 +76,12 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     // For simplicity, we'll proceed with deletion without confirmation
 
     // Delete the recap
-    await db.run(`DELETE FROM milesbot_recaps WHERE id = ?`, [recapId]);
+    await db.run(`DELETE FROM milesbot_recaps WHERE id = ?`, [recapIdInput]);
 
-    const embed = createSuccessEmbed("Recap Deleted 🎉");
+    const embed = createErrorEmbed("Recap Deleted 🎉");
     embed.setDescription(
-      `Recap with ID **${recapId}** has been successfully deleted.`
+      `Recap with ID **${recapIdInput}** has been successfully deleted.`
     );
-    embed.setColor(0xff0000); // Red color to indicate deletion
 
     await interaction.reply({ embeds: [embed] });
   } catch (error) {

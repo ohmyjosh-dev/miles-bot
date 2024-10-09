@@ -4,7 +4,7 @@ import { Database } from "sqlite";
 import { getDbConnection } from "./database";
 import { environment } from "./defs";
 import { BOT_ENV } from "./config";
-import { ERROR_COLOR, SUCCESS_COLOR } from "./consts";
+import { ERROR_COLOR, SUCCESS_COLOR, VALID_UUID_REGEX } from "./consts";
 
 export const isDevelopment = BOT_ENV === environment.dev;
 
@@ -71,6 +71,12 @@ export function isValidURL(urlString: string): boolean {
   } catch {
     return false;
   }
+}
+
+export function isValidUUID(uuid: string): boolean {
+  const uuidRegex = VALID_UUID_REGEX;
+
+  return uuidRegex.test(uuid);
 }
 
 /**
