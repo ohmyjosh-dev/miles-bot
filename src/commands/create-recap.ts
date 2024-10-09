@@ -13,7 +13,7 @@ import {
   createErrorEmbed,
 } from "../utils";
 import { getDbConnection } from "../database";
-import { DM_ROLE_NAME } from "../defs";
+import { DM_ROLE_NAME } from "../consts";
 
 export const data = new SlashCommandBuilder()
   .setName("miles-create-recap")

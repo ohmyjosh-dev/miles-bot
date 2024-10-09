@@ -1,14 +1,10 @@
 // src/utils.ts
-import {
-  ChatInputCommandInteraction,
-  EmbedBuilder,
-  Message,
-  OmitPartialGroupDMChannel,
-} from "discord.js";
+import { ChatInputCommandInteraction, EmbedBuilder } from "discord.js";
 import { Database } from "sqlite";
 import { getDbConnection } from "./database";
-import { environment, ERROR_COLOR, SUCCESS_COLOR } from "./defs";
+import { environment } from "./defs";
 import { BOT_ENV } from "./config";
+import { ERROR_COLOR, SUCCESS_COLOR } from "./consts";
 
 export const isDevelopment = BOT_ENV === environment.dev;
 

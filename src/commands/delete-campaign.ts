@@ -6,10 +6,21 @@ import {
   ButtonBuilder,
   ButtonStyle,
   ActionRowBuilder,
+  ButtonInteraction,
+  CacheType,
 } from "discord.js";
-import { handleError, ensureGuild, createErrorEmbed } from "../utils";
+import {
+  handleError,
+  ensureGuild,
+  createErrorEmbed,
+  createSuccessEmbed,
+} from "../utils";
 import { getDbConnection } from "../database";
-import { DM_ROLE_NAME } from "../defs";
+import {
+  CANCEL_BUTTON_ID,
+  CONFIRM_DELETE_CAMPAIGN,
+  DM_ROLE_NAME,
+} from "../consts";
 
 export const data = new SlashCommandBuilder()
   .setName("miles-delete-campaign")
@@ -76,11 +87,11 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     // Optional: Confirm deletion with the user using buttons
     const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()
-        .setCustomId(`confirm_delete_campaign_${campaignId}`)
+        .setCustomId(`${CONFIRM_DELETE_CAMPAIGN}${campaignId}`)
         .setLabel("Confirm Deletion")
         .setStyle(ButtonStyle.Danger),
       new ButtonBuilder()
-        .setCustomId("cancel_delete_campaign")
+        .setCustomId(CANCEL_BUTTON_ID)
         .setLabel("Cancel")
         .setStyle(ButtonStyle.Secondary)
     );
@@ -101,5 +112,43 @@ export async function execute(interaction: ChatInputCommandInteraction) {
       error,
       "There was an error initiating the campaign deletion."
     );
+  }
+}
+
+export async function handleDeleteConfirmation(
+  interaction: ButtonInteraction<CacheType>
+) {
+  const guildId = interaction.guildId;
+  if (!guildId) return;
+
+  const campaignId = parseInt(
+    interaction.customId.split("_").pop() as string,
+    10
+  );
+
+  try {
+    const db = await getDbConnection();
+
+    // Delete the campaign and associated recaps
+    await db.run(`DELETE FROM campaigns WHERE id = ? AND guild_id = ?`, [
+      campaignId,
+      guildId,
+    ]);
+    await db.run(`DELETE FROM milesbot_recaps WHERE campaign_id = ?`, [
+      campaignId,
+    ]);
+
+    const embed = createErrorEmbed(
+      `Campaign with \`id: ${campaignId} has been deleted Deleted ✅`
+    );
+
+    await interaction.reply({
+      embeds: [embed],
+      ephemeral: false,
+    });
+  } catch (error) {
+    const embed = createErrorEmbed("An error has occurred ❌");
+
+    await interaction.reply({ embeds: [embed] });
   }
 }
