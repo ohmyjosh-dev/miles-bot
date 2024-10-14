@@ -65,7 +65,7 @@ client.on("interactionCreate", async (interaction) => {
   }
 });
 
-client.on("messageCreate", (msg) => {
+/* client.on("messageCreate", (msg) => {
   // **1. Ignore Messages from Bots**
   if (msg.author.bot) return; // If the message author is a bot, exit the handler.
 
@@ -82,7 +82,7 @@ client.on("messageCreate", (msg) => {
   if (msg.content.toLowerCase().includes("thurs")) {
     msg.reply("Thursdays are for D&D! 🎲");
   }
-});
+}); */
 
 client.on("interactionCreate", async (interaction) => {
   if (!interaction?.isButton()) return;
