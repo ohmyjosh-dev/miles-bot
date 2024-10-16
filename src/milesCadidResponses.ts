@@ -2,8 +2,8 @@ import { Message } from "discord.js";
 import { isDevelopment } from "./utils";
 import { MILES_RANDOM_RESPONSES } from "./consts";
 
-let knockKnockFlag1 = false;
-let knockKnockFlag2 = false;
+let knockKnockFlag1: string[] = [];
+let knockKnockFlag2: string[] = [];
 
 export const milesCandidResponses = (msg: Message<boolean>): void => {
   inDevelopment(msg);
@@ -34,24 +34,26 @@ function inDevelopment(msg: Message<boolean>): void {
 function knockKnockJoke(msg: Message): void {
   if (msg.content.toLowerCase().includes("knock knock")) {
     msg.reply("Who's there?");
-    knockKnockFlag1 = true;
+
+    knockKnockFlag1 = [...knockKnockFlag1, msg.author.id];
 
     return;
   }
 
-  if (knockKnockFlag1) {
+  if (knockKnockFlag1.includes(msg.author.id)) {
     if (msg.content.toLowerCase().includes("miles")) {
       msg.reply("Miles who? Miles who? MILES WHO? THINK ABOUT IT!");
 
-      knockKnockFlag1 = false;
-      knockKnockFlag2 = false;
+      // remove the user from the flag if it exists
+      knockKnockFlag1 = knockKnockFlag1.filter((id) => id !== msg.author.id);
+      knockKnockFlag2 = [...knockKnockFlag2, msg.author.id];
 
       return;
     }
 
     msg.reply(msg.content + " who?");
-    knockKnockFlag1 = false;
-    knockKnockFlag2 = true;
+    knockKnockFlag1 = knockKnockFlag1.filter((id) => id !== msg.author.id);
+    knockKnockFlag2 = [...knockKnockFlag2, msg.author.id];
 
     return;
   }
@@ -63,7 +65,7 @@ function knockKnockJoke(msg: Message): void {
 
     msg.reply(getRandomString(responses));
 
-    knockKnockFlag2 = false;
+    knockKnockFlag2 = knockKnockFlag2.filter((id) => id !== msg.author.id);
   }
 
   return;
