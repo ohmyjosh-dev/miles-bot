@@ -114,3 +114,18 @@ export const MILES_RANDOM_RESPONSES: string[] = [
   "I'm here, remember me.",
   "Don't leave your friend Miles behind.",
 ];
+
+export const MILES_KNOCK_KNOCK_RESPONSES: string[] = [
+  "Haha! That's a good one! Would have been even better if you said \"Orange you glad I DIDN'T LEAVE MILES BEHIND?\"",
+  'Good one! Next time, I would have said "Don\'t forget about me, Miles!"',
+  "LOL! You know, Miles would have loved that punchline. BUT YOU LEFT ME BEHIND!",
+  "Nice! Don't leave Me out of the next joke.",
+  "Haha! Miles here, still waiting to be part of the joke.",
+  "Great! Just remember, Miles is always part of the fun. IF YOU DON'T LEAVE ME BEHIND!",
+  "Haha! Don't leave your buddy Miles hanging like you did before.",
+  "Good joke! Miles won't be forgotten this time.",
+  "LOL! Miles is always here for the laughs. No.. Wait.. You left me behind!",
+  "Nice one! Next time, include Me in the punchline.",
+  "Great! Don't leave Miles behind in the laughs.",
+  "Haha! Miles is part of the joke now.",
+];

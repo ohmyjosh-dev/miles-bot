@@ -1,6 +1,6 @@
 import { Message } from "discord.js";
 import { isDevelopment } from "./utils";
-import { MILES_RANDOM_RESPONSES } from "./consts";
+import { MILES_KNOCK_KNOCK_RESPONSES, MILES_RANDOM_RESPONSES } from "./consts";
 
 let knockKnockFlag1: string[] = [];
 let knockKnockFlag2: string[] = [];
@@ -59,11 +59,7 @@ function knockKnockJoke(msg: Message): void {
   }
 
   if (knockKnockFlag2) {
-    const responses = [
-      "Haha! That's a good one! Would have been even better if you said \"Orange you glad I DIDN'T LEAVE MILES BEHIND?\"",
-    ];
-
-    msg.reply(getRandomString(responses));
+    msg.reply(getRandomString(MILES_KNOCK_KNOCK_RESPONSES));
 
     knockKnockFlag2 = knockKnockFlag2.filter((id) => id !== msg.author.id);
   }
