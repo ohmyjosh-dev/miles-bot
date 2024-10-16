@@ -1,10 +1,8 @@
 import { Message } from "discord.js";
-import { isDevelopment } from "./utils";
 import { MILES_KNOCK_KNOCK_RESPONSES, MILES_RANDOM_RESPONSES } from "./consts";
 
 let knockKnockFlag1: string[] = [];
 let knockKnockFlag2: string[] = [];
-let knockKnockFlag3: string[] = [];
 
 export const milesCandidResponses = (msg: Message<boolean>): void => {
   knockKnockJoke(msg);
@@ -38,7 +36,6 @@ function knockKnockJoke(msg: Message): void {
 
       // remove the user from the flag if it exists
       knockKnockFlag1 = knockKnockFlag1.filter((id) => id !== msg.author.id);
-      knockKnockFlag2 = [...knockKnockFlag2, msg.author.id];
 
       return;
     }
