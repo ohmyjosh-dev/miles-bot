@@ -4,9 +4,9 @@ import { MILES_KNOCK_KNOCK_RESPONSES, MILES_RANDOM_RESPONSES } from "./consts";
 
 let knockKnockFlag1: string[] = [];
 let knockKnockFlag2: string[] = [];
+let knockKnockFlag3: string[] = [];
 
 export const milesCandidResponses = (msg: Message<boolean>): void => {
-  inDevelopment(msg);
   knockKnockJoke(msg);
 
   // should run last
@@ -21,14 +21,6 @@ function randomResponses(msg: Message<boolean>): void {
   }
 
   return;
-}
-
-function inDevelopment(msg: Message<boolean>): void {
-  if (msg.content.toLowerCase().includes("miles") && isDevelopment) {
-    msg.reply("🛠️ Miles is currently in therapy");
-
-    return;
-  }
 }
 
 function knockKnockJoke(msg: Message): void {
@@ -58,7 +50,7 @@ function knockKnockJoke(msg: Message): void {
     return;
   }
 
-  if (knockKnockFlag2) {
+  if (knockKnockFlag2.includes(msg.author.id)) {
     msg.reply(getRandomString(MILES_KNOCK_KNOCK_RESPONSES));
 
     knockKnockFlag2 = knockKnockFlag2.filter((id) => id !== msg.author.id);
