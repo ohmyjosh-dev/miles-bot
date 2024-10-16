@@ -2,7 +2,7 @@
 import { CommandInteraction, SlashCommandBuilder } from "discord.js";
 
 export const data = new SlashCommandBuilder()
-  .setName("miles-who-is-miles")
+  .setName("miles")
   .setDescription("Who is Miles?");
 
 export async function execute(interaction: CommandInteraction) {

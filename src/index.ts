@@ -10,6 +10,7 @@ import { config } from "./config";
 import { isDevelopment } from "./utils";
 import { CANCEL_BUTTON_ID, CONFIRM_DELETE_CAMPAIGN } from "./consts";
 import { handleDeleteConfirmation } from "./commands/delete-campaign";
+import { milesCandidResponses } from "./milesCadidResponses";
 // import { startSchedulers } from "./scheduler/scheduler"; // Uncomment if you have schedulers
 
 const client = new Client({
@@ -65,24 +66,12 @@ client.on("interactionCreate", async (interaction) => {
   }
 });
 
-/* client.on("messageCreate", (msg) => {
+client.on("messageCreate", (msg) => {
   // **1. Ignore Messages from Bots**
-  if (msg.author.bot) return; // If the message author is a bot, exit the handler.
+  if (!msg || msg.author.bot) return; // If the message author is a bot, exit the handler.
 
-  if (msg.content.toLowerCase().includes("miles")) {
-    if (isDevelopment) {
-      msg.reply("🛠️ Miles is currently in therapy");
-
-      return;
-    }
-
-    msg.reply("Who?");
-  }
-
-  if (msg.content.toLowerCase().includes("thurs")) {
-    msg.reply("Thursdays are for D&D! 🎲");
-  }
-}); */
+  milesCandidResponses(msg);
+});
 
 client.on("interactionCreate", async (interaction) => {
   if (!interaction?.isButton()) return;
