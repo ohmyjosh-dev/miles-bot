@@ -10,7 +10,7 @@ import { config } from "./config";
 import { isDevelopment } from "./utils";
 import { CANCEL_BUTTON_ID, CONFIRM_DELETE_CAMPAIGN } from "./consts";
 import { handleDeleteConfirmation } from "./commands/delete-campaign";
-import { milesCandidResponses } from "./milesCadidResponses";
+import { milesCandidResponses } from "./milesCandidResponses";
 // import { startSchedulers } from "./scheduler/scheduler"; // Uncomment if you have schedulers
 
 const client = new Client({
