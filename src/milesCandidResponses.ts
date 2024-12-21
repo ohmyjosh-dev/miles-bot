@@ -13,10 +13,12 @@ export const milesCandidResponses = (msg: Message<boolean>): void => {
   return;
 };
 
-function randomResponses(msg: Message<boolean>): void {
-  if (shouldTrigger(3)) {
+function randomResponses(_msg: Message<boolean>): void {
+  // remove false to re-enable
+  // uncomment and remove underscore in function param to re-enable
+  /* if (shouldTrigger(3)) {
     msg.reply(getRandomString(MILES_RANDOM_RESPONSES));
-  }
+  } */
 
   return;
 }
