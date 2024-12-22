@@ -1,4 +1,3 @@
-version: "3.9"
 services:
   milesbot:
     image: milesbot:latest
@@ -6,6 +5,9 @@ services:
       - .env
     volumes:
       - milesbot_data:/app/database
+
+  ffmpeg:
+    image: lscr.io/linuxserver/ffmpeg:latest
 
 volumes:
   milesbot_data:
