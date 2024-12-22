@@ -12,9 +12,14 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@discordjs/rest": "^2.4.0",
+    "@discordjs/voice": "^0.18.0",
+    "discord-api-types": "^0.37.113",
+    "discord-player": "^6.7.1",
     "discord.js": "^14.16.3",
     "dotenv": "^16.4.5",
     "node-cron": "^3.0.3",
+    "opusscript": "^0.1.1",
     "sqlite": "^5.1.1",
     "sqlite3": "^5.1.7"
   },
