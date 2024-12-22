@@ -1,16 +1,15 @@
 // src/index.ts
 import {
+  ChatInputCommandInteraction,
   Client,
   GatewayIntentBits,
-  ChatInputCommandInteraction,
-} from "discord.js";
-import { deployCommands } from "./deploy-commands";
-import { commands } from "./commands";
-import { config } from "./config";
-import { isDevelopment } from "./utils";
-import { CANCEL_BUTTON_ID, CONFIRM_DELETE_CAMPAIGN } from "./consts";
-import { handleDeleteConfirmation } from "./commands/delete-campaign";
-import { milesCandidResponses } from "./milesCandidResponses";
+} from 'discord.js';
+import { commands } from './commands';
+import { handleDeleteConfirmation } from './commands/delete-campaign';
+import { config } from './config';
+import { CANCEL_BUTTON_ID, CONFIRM_DELETE_CAMPAIGN } from './consts';
+import { deployCommands } from './deploy-commands';
+import { milesCandidResponses } from './milesCandidResponses';
 // import { startSchedulers } from "./scheduler/scheduler"; // Uncomment if you have schedulers
 
 const client = new Client({
@@ -21,10 +20,10 @@ const client = new Client({
   ],
 });
 
-client.once("ready", async () => {
-  console.log("Discord bot is ready! 🤖");
+client.once('ready', async () => {
+  console.log('Discord bot is ready! 🤖');
 
-  const guilds = client.guilds.cache.map((guild) => guild.id);
+  const guilds = client.guilds.cache.map(guild => guild.id);
   for (const guildId of guilds) {
     await deployCommands({ guildId });
   }
@@ -33,11 +32,11 @@ client.once("ready", async () => {
   // startSchedulers(); // Uncomment if you have schedulers
 });
 
-client.on("guildCreate", async (guild) => {
+client.on('guildCreate', async guild => {
   await deployCommands({ guildId: guild.id });
 });
 
-client.on("interactionCreate", async (interaction) => {
+client.on('interactionCreate', async interaction => {
   if (interaction.isChatInputCommand()) {
     const { commandName } = interaction;
 
@@ -53,12 +52,12 @@ client.on("interactionCreate", async (interaction) => {
       console.error(`Error executing command ${commandName}:`, error);
       if (interaction.replied || interaction.deferred) {
         await interaction.followUp({
-          content: "There was an error executing that command.",
+          content: 'There was an error executing that command.',
           ephemeral: true,
         });
       } else {
         await interaction.reply({
-          content: "There was an error executing that command.",
+          content: 'There was an error executing that command.',
           ephemeral: true,
         });
       }
@@ -66,14 +65,14 @@ client.on("interactionCreate", async (interaction) => {
   }
 });
 
-client.on("messageCreate", (msg) => {
+client.on('messageCreate', msg => {
   // **1. Ignore Messages from Bots**
   if (!msg || msg.author.bot) return; // If the message author is a bot, exit the handler.
 
   milesCandidResponses(msg);
 });
 
-client.on("interactionCreate", async (interaction) => {
+client.on('interactionCreate', async interaction => {
   if (!interaction?.isButton()) return;
 
   const customIdLower = interaction.customId.toLowerCase();
@@ -82,10 +81,10 @@ client.on("interactionCreate", async (interaction) => {
     try {
       await handleDeleteConfirmation(interaction);
     } catch (error) {
-      console.error("Error handling delete confirmation:", error);
+      console.error('Error handling delete confirmation:', error);
       if (!interaction.replied && !interaction.deferred) {
         await interaction.reply({
-          content: "An error occurred while processing your request.",
+          content: 'An error occurred while processing your request.',
           ephemeral: true,
         });
       }
@@ -95,7 +94,7 @@ client.on("interactionCreate", async (interaction) => {
 
   if (customIdLower === CANCEL_BUTTON_ID.toLowerCase()) {
     await interaction.reply({
-      content: "Deletion has been cancelled.",
+      content: 'Deletion has been cancelled.',
       ephemeral: true,
     });
     return;
@@ -105,7 +104,7 @@ client.on("interactionCreate", async (interaction) => {
   // You can choose to ignore unrecognized buttons or notify the user
   // For example:
   await interaction.reply({
-    content: "This button interaction is not recognized.",
+    content: 'This button interaction is not recognized.',
     ephemeral: true,
   });
 });
