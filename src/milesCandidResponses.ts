@@ -1,10 +1,15 @@
 import { Message } from "discord.js";
-import { MILES_KNOCK_KNOCK_RESPONSES, MILES_RANDOM_RESPONSES } from "./consts";
+import { MILES_KNOCK_KNOCK_RESPONSES } from "./consts";
+import { getPingResponse, getRandomString } from "./utils";
 
 let knockKnockFlag1: string[] = [];
 let knockKnockFlag2: string[] = [];
 
 export const milesCandidResponses = (msg: Message<boolean>): void => {
+  if (msg.content.toLowerCase().includes("hello miles")) {
+    msg.reply(getPingResponse(`Hello ${msg.author}.`));
+  }
+
   knockKnockJoke(msg);
 
   // should run last
@@ -14,7 +19,6 @@ export const milesCandidResponses = (msg: Message<boolean>): void => {
 };
 
 function randomResponses(_msg: Message<boolean>): void {
-  // remove false to re-enable
   // uncomment and remove underscore in function param to re-enable
   /* if (shouldTrigger(3)) {
     msg.reply(getRandomString(MILES_RANDOM_RESPONSES));
@@ -56,15 +60,6 @@ function knockKnockJoke(msg: Message): void {
   }
 
   return;
-}
-
-function getRandomString(arr: string[]): string {
-  if (!arr.length) {
-    return ""; // or handle the empty array case as needed
-  }
-
-  const randomIndex = Math.floor(Math.random() * arr.length);
-  return arr[randomIndex];
 }
 
 /**

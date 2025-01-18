@@ -32,6 +32,8 @@ export const MILES_RANDOM_RESPONSES: string[] = [
   "No more leaving me behind, okay?",
   "Come back for me!",
   "Don't leave Miles stranded!",
+  "It's not miles call me the baron.",
+  "I used to be respected and feared!",
   "Why do you keep forgetting me?",
   "I know I'm here, just not in your plans.",
   "You can't keep leaving me behind like this.",

@@ -1,10 +1,15 @@
 // src/utils.ts
 import { ChatInputCommandInteraction, EmbedBuilder } from "discord.js";
 import { Database } from "sqlite";
+import { BOT_ENV } from "./config";
+import {
+  ERROR_COLOR,
+  MILES_RANDOM_RESPONSES,
+  SUCCESS_COLOR,
+  VALID_UUID_REGEX,
+} from "./consts";
 import { getDbConnection } from "./database";
 import { environment } from "./defs";
-import { BOT_ENV } from "./config";
-import { ERROR_COLOR, SUCCESS_COLOR, VALID_UUID_REGEX } from "./consts";
 
 export const isDevelopment = BOT_ENV === environment.dev;
 
@@ -14,7 +19,7 @@ export const isDevelopment = BOT_ENV === environment.dev;
  * @returns The guild ID if present, otherwise null.
  */
 export async function ensureGuild(
-  interaction: ChatInputCommandInteraction
+  interaction: ChatInputCommandInteraction,
 ): Promise<string | null> {
   const guildId = interaction.guildId;
   if (!guildId) {
@@ -37,13 +42,13 @@ export async function ensureGuild(
 export async function getCampaignId(
   guildId: string,
   campaignName: string,
-  interaction: ChatInputCommandInteraction
+  interaction: ChatInputCommandInteraction,
 ): Promise<number | null> {
   try {
     const db: Database = await getDbConnection();
     const campaign = await db.get<{ id: number }>(
       `SELECT id FROM campaigns WHERE guild_id = ? AND campaign_name = ?`,
-      [guildId, campaignName]
+      [guildId, campaignName],
     );
 
     if (!campaign) {
@@ -88,8 +93,8 @@ export function isValidUUID(uuid: string): boolean {
 export async function handleError(
   interaction: ChatInputCommandInteraction,
   error: any,
-  customMessage: string = "There was an error processing your request."
-) {
+  customMessage: string = "There was an error processing your request.",
+): Promise<void> {
   console.error(error);
   if (interaction.replied || interaction.deferred) {
     await interaction.followUp({
@@ -112,10 +117,10 @@ export async function handleError(
  */
 export function createErrorEmbed(
   title: string,
-  description?: string
+  description?: string,
 ): EmbedBuilder {
   const embed = new EmbedBuilder()
-    .setTitle(title)
+    .setTitle(customizeText(title))
     .setColor(ERROR_COLOR)
     .setTimestamp();
 
@@ -134,7 +139,7 @@ export function createErrorEmbed(
  */
 export function createSuccessEmbed(
   title: string,
-  description?: string
+  description?: string,
 ): EmbedBuilder {
   const embed = new EmbedBuilder()
     .setTitle(customizeText(title))
@@ -152,10 +157,56 @@ export function customizeFooter(props: { text: string }): { text: string } {
   return { text: customizeText(props.text) };
 }
 
-export function customizeText(title: string): string {
+/**
+ * Does bot-side customization of text as needed
+ *
+ * @param text string
+ * @returns string
+ */
+export function customizeText(
+  text: string,
+  options?: { append?: boolean },
+): string {
   if (isDevelopment) {
-    return `⚠️ MAINTENANCE MODE: This data is from a test database and is not accurate | ${title} | ${BOT_ENV}`;
+    if (options?.append) {
+      return `${text} Please be aware that I am in Developer Mode. Data will be incorrect and not all functions may work. | ⚠️ ${BOT_ENV}`;
+    }
+
+    return `⚠️ MAINTENANCE MODE: This data is from a test database and is not accurate \n\n${text} | ${BOT_ENV}`;
   }
 
-  return title;
+  return text;
+}
+
+/**
+ * gets a random string from an array
+ *
+ * @param arr string[]
+ * @returns string
+ */
+export function getRandomString(arr: string[]): string {
+  if (!arr.length) {
+    return ""; // or handle the empty array case as needed
+  }
+
+  const randomIndex = Math.floor(Math.random() * arr.length);
+  return arr[randomIndex];
+}
+
+export function getPingResponse(text: string): string {
+  const response = getRandomString(MILES_RANDOM_RESPONSES);
+
+  // This will mention the user who called the command
+  return customizeText(`${text} ${response}`, { append: true });
+}
+
+export function getErrorString(text: string): string {
+  return `❌ ${text}`;
+}
+
+export function getSuccessString(
+  text: string,
+  options?: { partyPopper?: boolean },
+): string {
+  return `${options?.partyPopper ? "🎉" : "✅"} ${text}`;
 }

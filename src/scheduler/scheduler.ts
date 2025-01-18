@@ -16,7 +16,7 @@ export function startSchedulers() {
     },
     {
       timezone: "Etc/UTC", // Use 'Etc/UTC' for Coordinated Universal Time
-    }
+    },
   );
 
   console.log("Schedulers started.");
