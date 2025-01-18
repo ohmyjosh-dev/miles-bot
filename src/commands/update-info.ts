@@ -132,13 +132,17 @@ export async function execute(interaction: ChatInputCommandInteraction) {
       },
     );
 
+    const successTitle = isUpdate
+      ? `${infoTitle} Updated`
+      : `${infoTitle} Created`;
+
     const successsMessage = isUpdate
       ? `Information block for **${infoTitle}** updated in campaign **${campaignName}**.`
       : `Information block for **${infoTitle}** added to campaign **${campaignName}**.`;
 
     // Create a success embed and reply to the interaction
     const embed = createSuccessEmbed(
-      getSuccessString(`${infoTitle} Created`, { partyPopper: true }),
+      getSuccessString(successTitle, { partyPopper: true }),
       successsMessage,
     );
     await interaction.reply({ embeds: [embed] });
