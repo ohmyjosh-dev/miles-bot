@@ -165,3 +165,18 @@ export function customizeText(title: string): string {
 
   return title;
 }
+
+/**
+ * gets a random string from an array
+ *
+ * @param arr string[]
+ * @returns string
+ */
+export function getRandomString(arr: string[]): string {
+  if (!arr.length) {
+    return ""; // or handle the empty array case as needed
+  }
+
+  const randomIndex = Math.floor(Math.random() * arr.length);
+  return arr[randomIndex];
+}

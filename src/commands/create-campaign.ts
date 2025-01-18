@@ -29,14 +29,6 @@ export const data = new SlashCommandBuilder()
       .setName("description")
       .setDescription("A description of the campaign.")
       .setRequired(true)
-  )
-  .addStringOption((option) =>
-    option
-      .setName("recap_master_link")
-      .setDescription(
-        "The link to all recaps for the campaign. https://example.com"
-      )
-      .setRequired(true)
   );
 
 export async function execute(interaction: ChatInputCommandInteraction) {
