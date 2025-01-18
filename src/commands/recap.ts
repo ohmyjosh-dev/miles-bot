@@ -17,7 +17,7 @@ export const data = new SlashCommandBuilder()
     option
       .setName("campaign_name")
       .setDescription("The name of the campaign.")
-      .setRequired(true)
+      .setRequired(true),
   );
 
 export async function execute(interaction: ChatInputCommandInteraction) {
@@ -38,18 +38,18 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     // Get the latest recap
     const recap = await db.get(
       `SELECT * FROM milesbot_recaps WHERE guild_id = ? AND campaign_id = ? ORDER BY created_at DESC LIMIT 1`,
-      [guildId, campaignId]
+      [guildId, campaignId],
     );
 
     const campaign = await db.get(
       `SELECT * FROM campaigns WHERE guild_id = ? AND id = ?`,
-      [guildId, campaignId]
+      [guildId, campaignId],
     );
 
     if (!recap) {
       const embed = createErrorEmbed(
         "No Recaps Found ❌",
-        `No recaps found for campaign **${campaignName}**.`
+        `No recaps found for campaign **${campaignName}**.`,
       );
       return interaction.reply({ embeds: [embed] });
     }
@@ -72,7 +72,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     await handleError(
       interaction,
       error,
-      "There was an error retrieving the recap."
+      "There was an error retrieving the recap.",
     );
   }
 }

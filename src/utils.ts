@@ -24,7 +24,7 @@ export const isDevelopment = BOT_ENV === environment.dev;
  * @returns The guild ID if present, otherwise null.
  */
 export async function ensureGuild(
-  interaction: ChatInputCommandInteraction
+  interaction: ChatInputCommandInteraction,
 ): Promise<string | null> {
   const guildId = interaction.guildId;
   if (!guildId) {
@@ -47,13 +47,13 @@ export async function ensureGuild(
 export async function getCampaignId(
   guildId: string,
   campaignName: string,
-  interaction: ChatInputCommandInteraction
+  interaction: ChatInputCommandInteraction,
 ): Promise<number | null> {
   try {
     const db: Database = await getDbConnection();
     const campaign = await db.get<{ id: number }>(
       `SELECT id FROM campaigns WHERE guild_id = ? AND campaign_name = ?`,
-      [guildId, campaignName]
+      [guildId, campaignName],
     );
 
     if (!campaign) {
@@ -98,7 +98,7 @@ export function isValidUUID(uuid: string): boolean {
 export async function handleError(
   interaction: ChatInputCommandInteraction,
   error: any,
-  customMessage: string = "There was an error processing your request."
+  customMessage: string = "There was an error processing your request.",
 ): Promise<void> {
   console.error(error);
   if (interaction.replied || interaction.deferred) {
@@ -122,7 +122,7 @@ export async function handleError(
  */
 export function createErrorEmbed(
   title: string,
-  description?: string
+  description?: string,
 ): EmbedBuilder {
   const embed = new EmbedBuilder()
     .setTitle(customizeText(title))
@@ -144,7 +144,7 @@ export function createErrorEmbed(
  */
 export function createSuccessEmbed(
   title: string,
-  description?: string
+  description?: string,
 ): EmbedBuilder {
   const embed = new EmbedBuilder()
     .setTitle(customizeText(title))
@@ -170,7 +170,7 @@ export function customizeFooter(props: { text: string }): { text: string } {
  */
 export function customizeText(
   text: string,
-  options?: { append?: boolean }
+  options?: { append?: boolean },
 ): string {
   if (isDevelopment) {
     if (options?.append) {

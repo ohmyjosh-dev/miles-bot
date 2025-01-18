@@ -21,13 +21,13 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     const db = await getDbConnection();
     const campaigns = await db.all(
       `SELECT id, campaign_name, description FROM campaigns WHERE guild_id = ?`,
-      [guildId]
+      [guildId],
     );
 
     if (campaigns.length === 0) {
       const embed = createErrorEmbed(
         "No Campaigns Found ❌",
-        "There are no campaigns in this server."
+        "There are no campaigns in this server.",
       );
 
       return interaction.reply({ embeds: [embed] });
@@ -50,7 +50,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
   } catch (error) {
     const embed = createErrorEmbed(
       "Error ❌",
-      "There was an error retrieving the campaigns."
+      "There was an error retrieving the campaigns.",
     );
 
     await interaction.reply({ embeds: [embed], ephemeral: true });

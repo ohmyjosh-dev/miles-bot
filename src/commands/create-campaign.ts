@@ -22,13 +22,13 @@ export const data = new SlashCommandBuilder()
     option
       .setName("campaign_name")
       .setDescription("The name of the campaign.")
-      .setRequired(true)
+      .setRequired(true),
   )
   .addStringOption((option) =>
     option
       .setName("description")
       .setDescription("A description of the campaign.")
-      .setRequired(true)
+      .setRequired(true),
   );
 
 export async function execute(interaction: ChatInputCommandInteraction) {
@@ -39,12 +39,12 @@ export async function execute(interaction: ChatInputCommandInteraction) {
   // Check if the user has the "DM" role
   const member = interaction.member as GuildMember;
   const hasDmRole = member.roles.cache.some(
-    (role) => role.name === DM_ROLE_NAME
+    (role) => role.name === DM_ROLE_NAME,
   );
   if (!hasDmRole) {
     const embed = createErrorEmbed(
       "Insufficient Permissions ❌",
-      "You need the **DM** role to use this command."
+      "You need the **DM** role to use this command.",
     );
     return interaction.reply({ embeds: [embed], ephemeral: true });
   }
@@ -63,7 +63,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
   if (!isValidURL(recapLink)) {
     const embed = createErrorEmbed(
       "Invalid URL ❌",
-      "Please provide a valid URL for the recap link."
+      "Please provide a valid URL for the recap link.",
     );
     return interaction.reply({ embeds: [embed] });
   }
@@ -76,27 +76,27 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     // Insert the new campaign
     await db.run(
       `INSERT INTO campaigns (id, guild_id, campaign_name, description, recap_master_link) VALUES (?, ?, ?, ?, ?)`,
-      [newCampaignId, guildId, campaignName, description, recapLink]
+      [newCampaignId, guildId, campaignName, description, recapLink],
     );
 
     const embed = createSuccessEmbed(
       "Campaign Created 🎉",
       `Campaign **${campaignName}** created successfully!\n` +
-        `debug: link: ${recapLink}`
+        `debug: link: ${recapLink}`,
     );
     await interaction.reply({ embeds: [embed] });
   } catch (error: any) {
     if (error.message.includes("UNIQUE constraint failed")) {
       const embed = createErrorEmbed(
         "Duplicate Campaign ❌",
-        `A campaign with the name **${campaignName}** already exists.`
+        `A campaign with the name **${campaignName}** already exists.`,
       );
       await interaction.reply({ embeds: [embed] });
     } else {
       await handleError(
         interaction,
         error,
-        "There was an error creating the campaign."
+        "There was an error creating the campaign.",
       );
     }
   }

@@ -7,7 +7,7 @@ type DeployCommandsProps = {
 };
 
 const commandsData = Object.values(commands).map((command) =>
-  command.data.toJSON()
+  command.data.toJSON(),
 );
 
 const rest = new REST({ version: "10" }).setToken(config.DISCORD_TOKEN);
@@ -15,16 +15,16 @@ const rest = new REST({ version: "10" }).setToken(config.DISCORD_TOKEN);
 export async function deployCommands({ guildId }: DeployCommandsProps) {
   try {
     console.log(
-      `Started refreshing application (/) commands for guild ${guildId}.`
+      `Started refreshing application (/) commands for guild ${guildId}.`,
     );
 
     await rest.put(
       Routes.applicationGuildCommands(config.DISCORD_CLIENT_ID, guildId),
-      { body: commandsData }
+      { body: commandsData },
     );
 
     console.log(
-      `Successfully reloaded application (/) commands for guild ${guildId}.`
+      `Successfully reloaded application (/) commands for guild ${guildId}.`,
     );
   } catch (error) {
     console.error(error);

@@ -13,7 +13,7 @@ export const data = new SlashCommandBuilder()
     option
       .setName("campaign_name")
       .setDescription("The name of the campaign.")
-      .setRequired(true)
+      .setRequired(true),
   );
 
 export async function execute(interaction: ChatInputCommandInteraction) {
@@ -37,17 +37,17 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     // Get the latest 10 recaps
     const recaps = await db.all(
       `SELECT * FROM milesbot_recaps WHERE guild_id = ? AND campaign_id = ? ORDER BY created_at DESC LIMIT 10`,
-      [guildId, campaignId]
+      [guildId, campaignId],
     );
 
     const campaign = await db.get(
       `SELECT * FROM campaigns WHERE guild_id = ? AND id = ?`,
-      [guildId, campaignId]
+      [guildId, campaignId],
     );
 
     if (recaps.length === 0) {
       return interaction.reply(
-        `No recaps found for campaign **${campaignName}**.`
+        `No recaps found for campaign **${campaignName}**.`,
       );
     }
 

@@ -22,7 +22,7 @@ export const data = new SlashCommandBuilder()
     option
       .setName("recap_id")
       .setDescription("The unique ID of the recap to delete.")
-      .setRequired(true)
+      .setRequired(true),
   );
 
 export async function execute(interaction: ChatInputCommandInteraction) {
@@ -33,12 +33,12 @@ export async function execute(interaction: ChatInputCommandInteraction) {
   // Check if the user has the "DM" role
   const member = interaction.member as GuildMember;
   const hasDmRole = member.roles.cache.some(
-    (role) => role.name === DM_ROLE_NAME
+    (role) => role.name === DM_ROLE_NAME,
   );
   if (!hasDmRole) {
     const embed = createErrorEmbed(
       "Insufficient Permissions ❌",
-      "You need the **DM** role to use this command."
+      "You need the **DM** role to use this command.",
     );
     return interaction.reply({ embeds: [embed], ephemeral: true });
   }
@@ -50,7 +50,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
   if (!isValidUUID(recapIdInput)) {
     const embed = createErrorEmbed(
       "Invalid Recap ID ❌",
-      "The provided Recap ID is not a valid number."
+      "The provided Recap ID is not a valid number.",
     );
     return interaction.reply({ embeds: [embed], ephemeral: true });
   }
@@ -61,13 +61,13 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     // Check if the recap exists and belongs to the guild
     const recap = await db.get(
       `SELECT * FROM milesbot_recaps WHERE id = ? AND guild_id = ?`,
-      [recapIdInput, guildId]
+      [recapIdInput, guildId],
     );
 
     if (!recap) {
       const embed = createErrorEmbed(
         "Recap Not Found ❌",
-        `No recap found with ID **${recapIdInput}** in this server.`
+        `No recap found with ID **${recapIdInput}** in this server.`,
       );
       return interaction.reply({ embeds: [embed], ephemeral: true });
     }
@@ -80,7 +80,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
 
     const embed = createErrorEmbed("Recap Deleted 🎉");
     embed.setDescription(
-      `Recap with ID **${recapIdInput}** has been successfully deleted.`
+      `Recap with ID **${recapIdInput}** has been successfully deleted.`,
     );
 
     await interaction.reply({ embeds: [embed] });
@@ -88,7 +88,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     await handleError(
       interaction,
       error,
-      "There was an error deleting the recap."
+      "There was an error deleting the recap.",
     );
   }
 }

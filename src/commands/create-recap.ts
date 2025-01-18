@@ -23,19 +23,19 @@ export const data = new SlashCommandBuilder()
     option
       .setName("campaign_name")
       .setDescription("The name of the campaign.")
-      .setRequired(true)
+      .setRequired(true),
   )
   .addStringOption((option) =>
     option
       .setName("recap_title")
       .setDescription("The title of the recap.")
-      .setRequired(true)
+      .setRequired(true),
   )
   .addStringOption((option) =>
     option
       .setName("recap_link")
       .setDescription("A valid URL link for the recap. https://example.com")
-      .setRequired(true)
+      .setRequired(true),
   );
 
 export async function execute(interaction: ChatInputCommandInteraction) {
@@ -46,12 +46,12 @@ export async function execute(interaction: ChatInputCommandInteraction) {
   // Check if the user has the "DM" role
   const member = interaction.member as GuildMember;
   const hasDmRole = member.roles.cache.some(
-    (role) => role.name === DM_ROLE_NAME
+    (role) => role.name === DM_ROLE_NAME,
   );
   if (!hasDmRole) {
     const embed = createErrorEmbed(
       "Insufficient Permissions ❌",
-      "You need the **DM** role to use this command."
+      "You need the **DM** role to use this command.",
     );
     return interaction.reply({ embeds: [embed], ephemeral: true });
   }
@@ -67,7 +67,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
   if (!isValidURL(recapLink)) {
     const embed = createErrorEmbed(
       "Invalid URL ❌",
-      "Please provide a valid URL for the recap link."
+      "Please provide a valid URL for the recap link.",
     );
     return interaction.reply({ embeds: [embed] });
   }
@@ -84,13 +84,13 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     // Insert the new recap into the database
     await db.run(
       `INSERT INTO milesbot_recaps (id, guild_id, campaign_id, recap_title, recap_link) VALUES (?, ?, ?, ?, ?)`,
-      [newRecapId, guildId, campaignId, recapTitle, recapLink]
+      [newRecapId, guildId, campaignId, recapTitle, recapLink],
     );
 
     // Count the total number of recaps for the campaign
     const countResult = await db.get<{ count: number }>(
       `SELECT COUNT(*) as count FROM milesbot_recaps WHERE guild_id = ? AND campaign_id = ?`,
-      [guildId, campaignId]
+      [guildId, campaignId],
     );
 
     const count = countResult?.count ?? 0;
@@ -100,7 +100,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
       // Explicitly type recapsToDelete as an array
       const recapsToDelete: { id: number }[] = await db.all<{ id: number }[]>(
         `SELECT id FROM milesbot_recaps WHERE guild_id = ? AND campaign_id = ? ORDER BY created_at ASC LIMIT ?`,
-        [guildId, campaignId, count - 10]
+        [guildId, campaignId, count - 10],
       );
 
       if (recapsToDelete.length > 0) {
@@ -109,7 +109,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
 
         await db.run(
           `DELETE FROM milesbot_recaps WHERE id IN (${placeholders})`,
-          deleteIds
+          deleteIds,
         );
       }
     }
@@ -117,7 +117,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     // Create a success embed and reply to the interaction
     const embed = createSuccessEmbed(
       "Recap Created 🎉",
-      `Recap **${recapTitle}** added to campaign **${campaignName}**.`
+      `Recap **${recapTitle}** added to campaign **${campaignName}**.`,
     );
     await interaction.reply({ embeds: [embed] });
   } catch (error) {
@@ -125,7 +125,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     await handleError(
       interaction,
       error,
-      "There was an error creating the recap."
+      "There was an error creating the recap.",
     );
   }
 }

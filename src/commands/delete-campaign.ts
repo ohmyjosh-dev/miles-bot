@@ -26,13 +26,13 @@ import {
 export const data = new SlashCommandBuilder()
   .setName("miles-delete-campaign")
   .setDescription(
-    "Deletes a specific campaign by its ID along with all associated recaps."
+    "Deletes a specific campaign by its ID along with all associated recaps.",
   )
   .addStringOption((option) =>
     option
       .setName("campaign_id")
       .setDescription("The unique ID of the campaign to delete.")
-      .setRequired(true)
+      .setRequired(true),
   );
 
 export async function execute(interaction: ChatInputCommandInteraction) {
@@ -43,12 +43,12 @@ export async function execute(interaction: ChatInputCommandInteraction) {
   // Check if the user has the "DM" role
   const member = interaction.member as GuildMember;
   const hasDmRole = member.roles.cache.some(
-    (role) => role.name === DM_ROLE_NAME
+    (role) => role.name === DM_ROLE_NAME,
   );
   if (!hasDmRole) {
     const embed = createErrorEmbed(
       "Insufficient Permissions ❌",
-      "You need the **DM** role to use this command."
+      "You need the **DM** role to use this command.",
     );
     return interaction.reply({ embeds: [embed], ephemeral: true });
   }
@@ -61,7 +61,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
   if (!isValidUUID(campaignIdInput)) {
     const embed = createErrorEmbed(
       "Invalid Campaign ID ❌",
-      "The provided Campaign ID is not a valid number."
+      "The provided Campaign ID is not a valid number.",
     );
     return interaction.reply({ embeds: [embed], ephemeral: true });
   }
@@ -72,13 +72,13 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     // Check if the campaign exists and belongs to the guild
     const campaign = await db.get(
       `SELECT * FROM campaigns WHERE id = ? AND guild_id = ?`,
-      [campaignIdInput, guildId]
+      [campaignIdInput, guildId],
     );
 
     if (!campaign) {
       const embed = createErrorEmbed(
         "Campaign Not Found ❌",
-        `No campaign found with ID **${campaignIdInput}** in this server.`
+        `No campaign found with ID **${campaignIdInput}** in this server.`,
       );
       return interaction.reply({ embeds: [embed], ephemeral: true });
     }
@@ -92,12 +92,12 @@ export async function execute(interaction: ChatInputCommandInteraction) {
       new ButtonBuilder()
         .setCustomId(CANCEL_BUTTON_ID)
         .setLabel("Cancel")
-        .setStyle(ButtonStyle.Secondary)
+        .setStyle(ButtonStyle.Secondary),
     );
 
     const embed = createErrorEmbed(
       "Confirm Deletion ❓",
-      `Are you sure you want to delete the campaign **${campaign.campaign_name}** (ID: ${campaign.id})? This will also delete all associated recaps. This action cannot be undone.`
+      `Are you sure you want to delete the campaign **${campaign.campaign_name}** (ID: ${campaign.id})? This will also delete all associated recaps. This action cannot be undone.`,
     );
 
     await interaction.reply({
@@ -109,13 +109,13 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     await handleError(
       interaction,
       error,
-      "There was an error initiating the campaign deletion."
+      "There was an error initiating the campaign deletion.",
     );
   }
 }
 
 export async function handleDeleteConfirmation(
-  interaction: ButtonInteraction<CacheType>
+  interaction: ButtonInteraction<CacheType>,
 ) {
   const guildId = interaction.guildId;
   if (!guildId) return;
@@ -127,13 +127,13 @@ export async function handleDeleteConfirmation(
 
     const campaign = await db.get(
       `SELECT campaign_name FROM campaigns WHERE id = ? AND guild_id = ?`,
-      [campaignId, guildId]
+      [campaignId, guildId],
     );
 
     if (!campaign?.campaign_name) {
       const embed = createErrorEmbed(
         "Campaign Not Found ❌",
-        `No campaign found with ID **${campaignId}** in this server.`
+        `No campaign found with ID **${campaignId}** in this server.`,
       );
       return interaction.reply({ embeds: [embed], ephemeral: true });
     }
@@ -148,7 +148,7 @@ export async function handleDeleteConfirmation(
     ]);
 
     const embed = createErrorEmbed(
-      `Campaign with \`name: ${campaign.campaign_name}\` has been deleted along with all associated recaps✅`
+      `Campaign with \`name: ${campaign.campaign_name}\` has been deleted along with all associated recaps✅`,
     );
 
     await interaction.reply({
