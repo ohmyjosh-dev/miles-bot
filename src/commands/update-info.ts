@@ -1,4 +1,4 @@
-// src/commands/create-recap.ts
+// src/commands/update-info.ts
 import { randomUUID } from "crypto";
 import {
   ChatInputCommandInteraction,
