@@ -52,7 +52,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
 
       // Retrieve additional info for this campaign from the campaign_info table.
       const campaignInfo = await db.all(
-        `SELECT title, description, link, sort_order 
+        `SELECT id, title, description, link, sort_order 
          FROM campaign_info 
          WHERE campaign_id = $campaign_id 
          ORDER BY sort_order ASC`,
@@ -68,9 +68,16 @@ export async function execute(interaction: ChatInputCommandInteraction) {
         campaignInfo.forEach((info) => {
           embed.addFields({
             name: info.title,
-            value: `${info.description}\n` + `${info.link}\n`,
+            value:
+              (info.description ? `${info.description}\n` : "") +
+              (info.link ? `${info.link}\n` : "") +
+              `\`info id: ${info.id}\``,
             inline: false,
           });
+        });
+        embed.addFields({
+          name: "Campaign Id",
+          value: `\`${campaign.id}\``,
         });
       } else {
         embed.addFields({

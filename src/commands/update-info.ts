@@ -115,20 +115,20 @@ export async function execute(interaction: ChatInputCommandInteraction) {
 
     // Insert the new recap into the database
     await db.run(
-      `INSERT INTO campaign_info (id, guild_id, campaign_id, title, description, link, sort_order) 
-        VALUES ($id, $guild_id, $campaign_id, $title, $description, $link, $sort_order) 
-        ON CONFLICT(guild_id, title) DO UPDATE SET 
-          description = excluded.description, 
-          link = excluded.link, 
-          sort_order = excluded.sort_order`,
+      `INSERT INTO campaign_info (id, guild_id, campaign_id, title, description, link, sort_order)
+      VALUES ($id, $guild_id, $campaign_id, $title, coalesce($description, ''), coalesce($link, ''), coalesce($sort_order, -1))
+      ON CONFLICT(guild_id, title) DO UPDATE SET
+        description = CASE WHEN $description IS NULL THEN campaign_info.description ELSE $description END,
+        link = CASE WHEN $link IS NULL THEN campaign_info.link ELSE $link END,
+        sort_order = CASE WHEN $sort_order IS NULL THEN campaign_info.sort_order ELSE $sort_order END`,
       {
         $id: infoId,
         $guild_id: guildId,
         $campaign_id: campaignId,
         $title: infoTitle,
-        $description: infoDescription ?? "",
-        $link: infoLink ?? "",
-        $sort_order: sortOrder ?? -1,
+        $description: infoDescription ?? null,
+        $link: infoLink ?? null,
+        $sort_order: sortOrder ?? null,
       },
     );
 
