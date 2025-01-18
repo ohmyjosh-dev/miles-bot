@@ -20,6 +20,7 @@ import {
   createErrorEmbed,
   ensureGuild,
   getErrorString,
+  getSuccessString,
   handleError,
   isValidUUID,
 } from "../utils";
@@ -152,7 +153,9 @@ export async function handleDeleteConfirmation(
     });
 
     const embed = createErrorEmbed(
-      `✅ Campaign with \`name: ${campaign.campaign_name}\` has been deleted along with all associated Info`,
+      getSuccessString(
+        `Campaign with \`name: ${campaign.campaign_name}\` has been deleted along with all associated Info`,
+      ),
     );
 
     await interaction.reply({
