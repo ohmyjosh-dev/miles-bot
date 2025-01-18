@@ -1,4 +1,4 @@
-// src/commands/delete-recap.ts
+// src/commands/delete-info.ts
 import {
   ChatInputCommandInteraction,
   GuildMember,
@@ -67,7 +67,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
 
     if (!info) {
       const embed = createErrorEmbed(
-        getErrorString("Recap Not Found"),
+        getErrorString("Info Block Not Found"),
         `No info found with ID **${infoIdInput}** in this server.`,
       );
       return interaction.reply({ embeds: [embed], ephemeral: true });
@@ -91,7 +91,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     await handleError(
       interaction,
       error,
-      "There was an error deleting the recap.",
+      "There was an error deleting the Info.",
     );
   }
 }

@@ -91,11 +91,11 @@ export async function execute(interaction: ChatInputCommandInteraction) {
   const infoLink = interaction.options.getString("info_link", false)?.trim();
   const sortOrder = interaction.options.getNumber("sort_order", false);
 
-  // Validate the recap link URL
+  // Validate the info link URL
   if (infoLink && !isValidURL(infoLink)) {
     const embed = createErrorEmbed(
       getErrorString("Invalid URL"),
-      "Please provide a valid URL for the recap link.",
+      "Please provide a valid URL for the info link.",
     );
     return interaction.reply({ embeds: [embed] });
   }
@@ -116,7 +116,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
 
     const infoId = existingRecord?.id ?? randomUUID();
 
-    // Insert the new recap into the database
+    // Insert the new info into the database
     await db.run(
       `INSERT INTO campaign_info (id, guild_id, campaign_id, title, description, link, sort_order)
       VALUES ($id, $guild_id, $campaign_id, $title, coalesce($description, ''), coalesce($link, ''), coalesce($sort_order, -1))
