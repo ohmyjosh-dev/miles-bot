@@ -1,15 +1,14 @@
 // src/index.ts
 import {
+  ChatInputCommandInteraction,
   Client,
   GatewayIntentBits,
-  ChatInputCommandInteraction,
 } from "discord.js";
-import { deployCommands } from "./deploy-commands";
 import { commands } from "./commands";
-import { config } from "./config";
-import { isDevelopment } from "./utils";
-import { CANCEL_BUTTON_ID, CONFIRM_DELETE_CAMPAIGN } from "./consts";
 import { handleDeleteConfirmation } from "./commands/delete-campaign";
+import { config } from "./config";
+import { CANCEL_BUTTON_ID, CONFIRM_DELETE_CAMPAIGN } from "./consts";
+import { deployCommands } from "./deploy-commands";
 import { milesCandidResponses } from "./milesCandidResponses";
 // import { startSchedulers } from "./scheduler/scheduler"; // Uncomment if you have schedulers
 
@@ -64,6 +63,41 @@ client.on("interactionCreate", async (interaction) => {
       }
     }
   }
+
+  if (interaction.isButton()) {
+    const customIdLower = interaction.customId.toLowerCase();
+
+    if (customIdLower.includes(CONFIRM_DELETE_CAMPAIGN.toLowerCase())) {
+      try {
+        await handleDeleteConfirmation(interaction);
+      } catch (error) {
+        console.error("Error handling delete confirmation:", error);
+        if (!interaction.replied && !interaction.deferred) {
+          await interaction.reply({
+            content: "An error occurred while processing your request.",
+            ephemeral: true,
+          });
+        }
+      }
+      return; // Exit after handling to prevent further replies
+    }
+
+    if (customIdLower === CANCEL_BUTTON_ID.toLowerCase()) {
+      await interaction.reply({
+        content: "Deletion has been cancelled.",
+        ephemeral: true,
+      });
+      return;
+    }
+
+    // Handle other button interactions or send a generic error if the button is unrecognized
+    // You can choose to ignore unrecognized buttons or notify the user
+    // For example:
+    await interaction.reply({
+      content: "This button interaction is not recognized.",
+      ephemeral: true,
+    });
+  }
 });
 
 client.on("messageCreate", (msg) => {
@@ -71,43 +105,6 @@ client.on("messageCreate", (msg) => {
   if (!msg || msg.author.bot) return; // If the message author is a bot, exit the handler.
 
   milesCandidResponses(msg);
-});
-
-client.on("interactionCreate", async (interaction) => {
-  if (!interaction?.isButton()) return;
-
-  const customIdLower = interaction.customId.toLowerCase();
-
-  if (customIdLower.includes(CONFIRM_DELETE_CAMPAIGN.toLowerCase())) {
-    try {
-      await handleDeleteConfirmation(interaction);
-    } catch (error) {
-      console.error("Error handling delete confirmation:", error);
-      if (!interaction.replied && !interaction.deferred) {
-        await interaction.reply({
-          content: "An error occurred while processing your request.",
-          ephemeral: true,
-        });
-      }
-    }
-    return; // Exit after handling to prevent further replies
-  }
-
-  if (customIdLower === CANCEL_BUTTON_ID.toLowerCase()) {
-    await interaction.reply({
-      content: "Deletion has been cancelled.",
-      ephemeral: true,
-    });
-    return;
-  }
-
-  // Handle other button interactions or send a generic error if the button is unrecognized
-  // You can choose to ignore unrecognized buttons or notify the user
-  // For example:
-  await interaction.reply({
-    content: "This button interaction is not recognized.",
-    ephemeral: true,
-  });
 });
 
 client.login(config.DISCORD_TOKEN);
