@@ -11,6 +11,8 @@ import {
   createErrorEmbed,
   createSuccessEmbed,
   ensureGuild,
+  getErrorString,
+  getSuccessString,
   handleError,
 } from "../utils";
 
@@ -42,7 +44,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
   );
   if (!hasDmRole) {
     const embed = createErrorEmbed(
-      "Insufficient Permissions ❌",
+      getErrorString("Insufficient Permissions"),
       "You need the **DM** role to use this command.",
     );
     return interaction.reply({ embeds: [embed], ephemeral: true });
@@ -66,7 +68,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     );
 
     const embed = createSuccessEmbed(
-      "Campaign Created 🎉",
+      getSuccessString("Campaign Created", { partyPopper: true }),
       `Campaign **${campaignName}** created successfully!\n` +
         `description: ${description}`,
     );
@@ -74,7 +76,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
   } catch (error: any) {
     if (error.message.includes("UNIQUE constraint failed")) {
       const embed = createErrorEmbed(
-        "Duplicate Campaign ❌",
+        getErrorString("Duplicate Campaign"),
         `A campaign with the name **${campaignName}** already exists.`,
       );
       await interaction.reply({ embeds: [embed] });

@@ -1,13 +1,6 @@
 // src/utils.ts
-import {
-  ChatInputCommandInteraction,
-  CommandInteraction,
-  EmbedBuilder,
-  InteractionResponse,
-} from "discord.js";
+import { ChatInputCommandInteraction, EmbedBuilder } from "discord.js";
 import { Database } from "sqlite";
-import { getDbConnection } from "./database";
-import { environment } from "./defs";
 import { BOT_ENV } from "./config";
 import {
   ERROR_COLOR,
@@ -15,6 +8,8 @@ import {
   SUCCESS_COLOR,
   VALID_UUID_REGEX,
 } from "./consts";
+import { getDbConnection } from "./database";
+import { environment } from "./defs";
 
 export const isDevelopment = BOT_ENV === environment.dev;
 
@@ -203,4 +198,15 @@ export function getPingResponse(text: string): string {
 
   // This will mention the user who called the command
   return customizeText(`${text} ${response}`, { append: true });
+}
+
+export function getErrorString(text: string): string {
+  return `❌ ${text}`;
+}
+
+export function getSuccessString(
+  text: string,
+  options?: { partyPopper?: boolean },
+): string {
+  return `${options?.partyPopper ? "🎉" : "✅"} ${text}`;
 }

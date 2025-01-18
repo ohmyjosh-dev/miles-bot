@@ -1,6 +1,6 @@
 // src/database.ts
+import { Database, open } from "sqlite";
 import sqlite3 from "sqlite3";
-import { open, Database } from "sqlite";
 
 let db: Database<sqlite3.Database, sqlite3.Statement> | null = null;
 
@@ -38,8 +38,10 @@ export async function getDbConnection(): Promise<
       title TEXT NOT NULL,
       desc TEXT NOT NULL,
       link TEXT NOT NULL,
+      sort_order INTEGER DEFAULT 0,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (campaign_id) REFERENCES campaigns(id)
+      FOREIGN KEY (campaign_id) REFERENCES campaigns(id),
+      UNIQUE(guild_id, title)
     );
   `);
 

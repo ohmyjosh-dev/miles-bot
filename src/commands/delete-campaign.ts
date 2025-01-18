@@ -18,6 +18,7 @@ import { getDbConnection } from "../database";
 import {
   createErrorEmbed,
   ensureGuild,
+  getErrorString,
   handleError,
   isValidUUID,
 } from "../utils";
@@ -46,7 +47,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
   );
   if (!hasDmRole) {
     const embed = createErrorEmbed(
-      "Insufficient Permissions ❌",
+      getErrorString("Insufficient Permissions"),
       "You need the **DM** role to use this command.",
     );
     return interaction.reply({ embeds: [embed], ephemeral: true });
@@ -59,7 +60,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
 
   if (!isValidUUID(campaignIdInput)) {
     const embed = createErrorEmbed(
-      "Invalid Campaign ID ❌",
+      getErrorString("Invalid Campaign ID"),
       "The provided Campaign ID is not a valid number.",
     );
     return interaction.reply({ embeds: [embed], ephemeral: true });
@@ -76,7 +77,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
 
     if (!campaign) {
       const embed = createErrorEmbed(
-        "Campaign Not Found ❌",
+        getErrorString("Campaign Not Found"),
         `No campaign found with ID **${campaignIdInput}** in this server.`,
       );
       return interaction.reply({ embeds: [embed], ephemeral: true });
@@ -131,7 +132,7 @@ export async function handleDeleteConfirmation(
 
     if (!campaign?.campaign_name) {
       const embed = createErrorEmbed(
-        "Campaign Not Found ❌",
+        getErrorString("Campaign Not Found"),
         `No campaign found with ID **${campaignId}** in this server.`,
       );
       return interaction.reply({ embeds: [embed], ephemeral: true });
@@ -147,7 +148,7 @@ export async function handleDeleteConfirmation(
     ]);
 
     const embed = createErrorEmbed(
-      `Campaign with \`name: ${campaign.campaign_name}\` has been deleted along with all associated Info ✅`,
+      `✅ Campaign with \`name: ${campaign.campaign_name}\` has been deleted along with all associated Info`,
     );
 
     await interaction.reply({
@@ -155,7 +156,7 @@ export async function handleDeleteConfirmation(
       ephemeral: false,
     });
   } catch (error) {
-    const embed = createErrorEmbed("An error has occurred ❌");
+    const embed = createErrorEmbed(getErrorString("An error has occurred"));
 
     await interaction.reply({ embeds: [embed] });
   }
