@@ -1,3 +1,7 @@
+# docker build -t milesbot:latest .
+# docker tag milesbot:latest registry.ubuntu-webserver.lan/milesbot:latest
+# docker push registry.ubuntu-webserver.lan/milesbot:latest
+
 FROM node:20 AS base
 
 FROM base AS deps
