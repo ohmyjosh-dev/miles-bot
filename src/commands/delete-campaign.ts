@@ -26,7 +26,7 @@ import {
 export const data = new SlashCommandBuilder()
   .setName("miles-delete-campaign")
   .setDescription(
-    "Deletes a specific campaign by its ID along with all associated recaps.",
+    "Deletes a specific campaign by its ID along with all associated Information Blocks.",
   )
   .addStringOption((option) =>
     option
@@ -97,7 +97,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
 
     const embed = createErrorEmbed(
       "Confirm Deletion ❓",
-      `Are you sure you want to delete the campaign **${campaign.campaign_name}** (ID: ${campaign.id})? This will also delete all associated recaps. This action cannot be undone.`,
+      `Are you sure you want to delete the campaign **${campaign.campaign_name}** (ID: ${campaign.id})? This will also delete all associated Information Blocks. This action cannot be undone.`,
     );
 
     await interaction.reply({
@@ -126,8 +126,8 @@ export async function handleDeleteConfirmation(
     const db = await getDbConnection();
 
     const campaign = await db.get(
-      `SELECT campaign_name FROM campaigns WHERE id = ? AND guild_id = ?`,
-      [campaignId, guildId],
+      `SELECT campaign_name FROM campaigns WHERE id = $campaign_id AND guild_id = $guild_id`,
+      { $campaign_id: campaignId, $guild_id: guildId },
     );
 
     if (!campaign?.campaign_name) {
@@ -138,14 +138,17 @@ export async function handleDeleteConfirmation(
       return interaction.reply({ embeds: [embed], ephemeral: true });
     }
 
-    // Delete the campaign and associated recaps
-    await db.run(`DELETE FROM campaigns WHERE id = ? AND guild_id = ?`, [
-      campaignId,
-      guildId,
-    ]);
-    await db.run(`DELETE FROM campaign_info WHERE campaign_id = ?`, [
-      campaignId,
-    ]);
+    // Delete the campaign and associated Information Blocks
+    await db.run(
+      `DELETE FROM campaigns WHERE id = $campaign_id AND guild_id = $guild_id`,
+      {
+        $campaign_id: campaignId,
+        $guild_id: guildId,
+      },
+    );
+    await db.run(`DELETE FROM campaign_info WHERE campaign_id = $campaign_id`, {
+      $campaign_id: campaignId,
+    });
 
     const embed = createErrorEmbed(
       `✅ Campaign with \`name: ${campaign.campaign_name}\` has been deleted along with all associated Info`,

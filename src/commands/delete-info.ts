@@ -4,24 +4,24 @@ import {
   GuildMember,
   SlashCommandBuilder,
 } from "discord.js";
+import { DM_ROLE_NAME } from "../consts";
+import { getDbConnection } from "../database";
 import {
-  handleError,
-  ensureGuild,
   createErrorEmbed,
-  createSuccessEmbed,
+  ensureGuild,
+  getErrorString,
+  getSuccessString,
+  handleError,
   isValidUUID,
 } from "../utils";
-import { getDbConnection } from "../database";
-import { config } from "../config"; // Ensure config includes DM_ROLE_ID
-import { DM_ROLE_NAME } from "../consts";
 
 export const data = new SlashCommandBuilder()
-  .setName("miles-delete-recap")
-  .setDescription("Deletes a specific recap entry by its ID.")
+  .setName("miles-delete-info")
+  .setDescription("Deletes a specific information block by its ID.")
   .addStringOption((option) =>
     option
-      .setName("recap_id")
-      .setDescription("The unique ID of the recap to delete.")
+      .setName("info_id")
+      .setDescription("The unique ID of the information block to delete.")
       .setRequired(true),
   );
 
@@ -37,20 +37,20 @@ export async function execute(interaction: ChatInputCommandInteraction) {
   );
   if (!hasDmRole) {
     const embed = createErrorEmbed(
-      "Insufficient Permissions ❌",
+      getErrorString("Insufficient Permissions"),
       "You need the **DM** role to use this command.",
     );
     return interaction.reply({ embeds: [embed], ephemeral: true });
   }
 
-  // Extract and validate the recap_id option
-  const recapIdInput = interaction.options.getString("recap_id", true).trim();
+  // Extract and validate the info_id option
+  const infoIdInput = interaction.options.getString("info_id", true).trim();
 
-  // Validate that recap_id is a number
-  if (!isValidUUID(recapIdInput)) {
+  // Validate that info_id is a number
+  if (!isValidUUID(infoIdInput)) {
     const embed = createErrorEmbed(
-      "Invalid Recap ID ❌",
-      "The provided Recap ID is not a valid number.",
+      getErrorString("Invalid Info ID"),
+      "The provided Info ID is not a valid number.",
     );
     return interaction.reply({ embeds: [embed], ephemeral: true });
   }
@@ -58,16 +58,16 @@ export async function execute(interaction: ChatInputCommandInteraction) {
   try {
     const db = await getDbConnection();
 
-    // Check if the recap exists and belongs to the guild
-    const recap = await db.get(
-      `SELECT * FROM milesbot_recaps WHERE id = ? AND guild_id = ?`,
-      [recapIdInput, guildId],
+    // Check if the info exists and belongs to the guild
+    const info = await db.get(
+      `SELECT * FROM campaign_info WHERE id = $info_id AND guild_id = $guild_id`,
+      { $info_id: infoIdInput, $guild_id: guildId },
     );
 
-    if (!recap) {
+    if (!info) {
       const embed = createErrorEmbed(
-        "Recap Not Found ❌",
-        `No recap found with ID **${recapIdInput}** in this server.`,
+        getErrorString("Recap Not Found"),
+        `No info found with ID **${infoIdInput}** in this server.`,
       );
       return interaction.reply({ embeds: [embed], ephemeral: true });
     }
@@ -75,12 +75,14 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     // Optional: Confirm deletion with the user
     // For simplicity, we'll proceed with deletion without confirmation
 
-    // Delete the recap
-    await db.run(`DELETE FROM milesbot_recaps WHERE id = ?`, [recapIdInput]);
+    // Delete the Info
+    await db.run(`DELETE FROM campaign_info WHERE id = $id`, {
+      $id: infoIdInput,
+    });
 
-    const embed = createErrorEmbed("Recap Deleted 🎉");
+    const embed = createErrorEmbed(getSuccessString(`${info.title} Deleted`));
     embed.setDescription(
-      `Recap with ID **${recapIdInput}** has been successfully deleted.`,
+      `Info with ID **${infoIdInput}** has been successfully deleted.`,
     );
 
     await interaction.reply({ embeds: [embed] });
