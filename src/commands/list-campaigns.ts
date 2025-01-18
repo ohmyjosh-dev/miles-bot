@@ -63,7 +63,9 @@ export async function execute(interaction: ChatInputCommandInteraction) {
 
       // Build the embed with campaign and its details
       const embed = createSuccessEmbed(`Campaign: ${campaign.campaign_name}`);
-      embed.setDescription(campaign.description);
+      embed.setDescription(
+        `${campaign.description} \n \`Campaign id:${campaign.id}\``,
+      );
 
       if (campaignInfo.length > 0) {
         // Add each info block as a field in the embed.
@@ -76,10 +78,6 @@ export async function execute(interaction: ChatInputCommandInteraction) {
               `\`info id: ${info.id}\``,
             inline: false,
           });
-        });
-        embed.addFields({
-          name: "Campaign Id",
-          value: `\`${campaign.id}\``,
         });
       } else {
         embed.addFields({
@@ -112,6 +110,13 @@ export async function execute(interaction: ChatInputCommandInteraction) {
           value: `${campaign.description}\n` + `\`id: ${campaign.id}\``,
           inline: false,
         });
+      });
+
+      embed.addFields({
+        name: "Additional Information",
+        value:
+          `To view details of a specific campaign, use: \n` +
+          `\`/${CommandName.milesCampaigns} --campaign_name <campaign_name>\``,
       });
 
       return interaction.reply({ embeds: [embed] });

@@ -7,7 +7,7 @@ import {
 } from "discord.js";
 import { DM_ROLE_NAME } from "../consts";
 import { getDbConnection } from "../database";
-import { CommandName } from "../defs";
+import { CommandName, OptionName } from "../defs";
 import {
   createErrorEmbed,
   createSuccessEmbed,
@@ -24,27 +24,29 @@ export const data = new SlashCommandBuilder()
   .setDescription("Adds or Edits information for a specific campaign.")
   .addStringOption((option) =>
     option
-      .setName("campaign_name")
+      .setName(OptionName.campaignName)
       .setDescription("The name of the campaign.")
-      .setRequired(true),
+      .setRequired(true)
+      .setAutocomplete(true),
   )
   .addStringOption((option) =>
     option
-      .setName("info_title")
+      .setName(OptionName.infoTitle)
       .setDescription(
-        "The title of the information block. Provide the existing title to edit.",
+        "The title of the information block. Provide the existing title to edit it if it already exists.",
       )
-      .setRequired(true),
+      .setRequired(true)
+      .setAutocomplete(true),
   )
   .addStringOption((option) =>
     option
-      .setName("info_description")
+      .setName(OptionName.infoDescription)
       .setDescription("OPTIONAL: The description of the information block")
       .setRequired(false),
   )
   .addStringOption((option) =>
     option
-      .setName("info_link")
+      .setName(OptionName.infoLink)
       .setDescription(
         "OPTIONAL: A valid URL link for the information block. https://example.com",
       )
@@ -52,7 +54,7 @@ export const data = new SlashCommandBuilder()
   )
   .addNumberOption((option) =>
     option
-      .setName("sort_order")
+      .setName(OptionName.sortOrder)
       .setDescription(
         "OPTIONAL: If you care about the order of the information blocks, you can specify a number here.",
       )

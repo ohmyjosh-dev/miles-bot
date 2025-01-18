@@ -102,11 +102,14 @@ client.on("interactionCreate", async (interaction) => {
   }
 
   if (interaction.isAutocomplete()) {
-    if (interaction.commandName === CommandName.milesCampaigns) {
+    if (
+      interaction.commandName === CommandName.milesCampaigns ||
+      interaction.commandName === CommandName.milesUpdateInfo
+    ) {
       const focusedOption = interaction.options.getFocused(true);
 
-      if (focusedOption.name === OptionName.campaignName) {
-        try {
+      try {
+        if (focusedOption.name === OptionName.campaignName) {
           const db = await getDbConnection();
           const guildId = interaction.guildId;
 
@@ -135,10 +138,41 @@ client.on("interactionCreate", async (interaction) => {
             .slice(0, 25);
 
           return interaction.respond(choices);
-        } catch (error) {
-          console.error("Autocomplete error:", error);
-          return await interaction.respond([]);
         }
+
+        if (focusedOption.name === OptionName.infoTitle) {
+          const db = await getDbConnection();
+          const guildId = interaction.guildId;
+
+          if (!guildId) {
+            return interaction.respond([]);
+          }
+          // Query for info titles matching the partial value.
+          const results: { title: string }[] = await db.all(
+            `SELECT title
+             FROM campaign_info
+             WHERE guild_id = $guild_id 
+               AND title LIKE $value
+             ORDER BY title ASC`,
+            {
+              $guild_id: guildId,
+              $value: `%${focusedOption.value}%`,
+            },
+          );
+
+          // Format the results as choices (limit to 25 as Discord requires)
+          const choices = results
+            .map((row) => ({
+              name: row.title,
+              value: row.title,
+            }))
+            .slice(0, 25);
+
+          return interaction.respond(choices);
+        }
+      } catch (error) {
+        console.error("Autocomplete error:", error);
+        return await interaction.respond([]);
       }
     }
   }

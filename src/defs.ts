@@ -14,4 +14,8 @@ export enum CommandName {
 
 export enum OptionName {
   campaignName = "campaign_name",
+  infoTitle = "info_title",
+  infoDescription = "info_description",
+  infoLink = "info_link",
+  sortOrder = "sort_order",
 }
