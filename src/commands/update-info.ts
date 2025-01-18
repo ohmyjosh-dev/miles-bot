@@ -13,6 +13,7 @@ import {
   ensureGuild,
   getCampaignId,
   getErrorString,
+  getSuccessString,
   handleError,
   isValidURL,
 } from "../utils";
@@ -29,12 +30,14 @@ export const data = new SlashCommandBuilder()
   .addStringOption((option) =>
     option
       .setName("info_title")
-      .setDescription("The title of the information block")
+      .setDescription(
+        "The title of the information block. Provide the existing title to edit.",
+      )
       .setRequired(true),
   )
   .addStringOption((option) =>
     option
-      .setName("info_desc")
+      .setName("info_description")
       .setDescription("OPTIONAL: The description of the information block")
       .setRequired(false),
   )
@@ -51,14 +54,6 @@ export const data = new SlashCommandBuilder()
       .setName("sort_order")
       .setDescription(
         "OPTIONAL: If you care about the order of the information blocks, you can specify a number here.",
-      )
-      .setRequired(false),
-  )
-  .addStringOption((option) =>
-    option
-      .setName("existing_info_title")
-      .setDescription(
-        "OPTIONAL: Only include this to update an existing information block",
       )
       .setRequired(false),
   );
@@ -87,12 +82,11 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     .trim();
 
   const infoTitle = interaction.options.getString("info_title", true).trim();
-  const infoDesc = interaction.options.getString("recap_desc", false)?.trim();
+  const infoDescription = interaction.options
+    .getString("info_description", false)
+    ?.trim();
   const infoLink = interaction.options.getString("info_link", false)?.trim();
   const sortOrder = interaction.options.getNumber("sort_order", false);
-  const existingInfoTitle = interaction.options
-    .getString("existing_info_title", false)
-    ?.trim();
 
   // Validate the recap link URL
   if (infoLink && !isValidURL(infoLink)) {
@@ -106,22 +100,46 @@ export async function execute(interaction: ChatInputCommandInteraction) {
   try {
     const db = await getDbConnection();
 
-    const newInfoId = randomUUID();
-
     // Retrieve the campaign ID using the utility function
     const campaignId = await getCampaignId(guildId, campaignName, interaction);
     if (!campaignId) return;
 
+    const existingRecord = await db.get(
+      `SELECT id FROM campaign_info WHERE guild_id = $guild_id AND title = $title`,
+      { $guild_id: guildId, $title: infoTitle },
+    );
+
+    const isUpdate = Boolean(existingRecord);
+
+    const infoId = existingRecord?.id ?? randomUUID();
+
     // Insert the new recap into the database
     await db.run(
-      `INSERT INTO milesbot_recaps (id, guild_id, campaign_id, title, desc, link) VALUES (?, ?, ?, ?, ?, ?)`,
-      [newInfoId, guildId, campaignId, infoTitle, infoDesc, infoLink],
+      `INSERT INTO campaign_info (id, guild_id, campaign_id, title, description, link, sort_order) 
+        VALUES ($id, $guild_id, $campaign_id, $title, $description, $link, $sort_order) 
+        ON CONFLICT(guild_id, title) DO UPDATE SET 
+          description = excluded.description, 
+          link = excluded.link, 
+          sort_order = excluded.sort_order`,
+      {
+        $id: infoId,
+        $guild_id: guildId,
+        $campaign_id: campaignId,
+        $title: infoTitle,
+        $description: infoDescription ?? "",
+        $link: infoLink ?? "",
+        $sort_order: sortOrder ?? -1,
+      },
     );
+
+    const successsMessage = isUpdate
+      ? `Information block for **${infoTitle}** updated in campaign **${campaignName}**.`
+      : `Information block for **${infoTitle}** added to campaign **${campaignName}**.`;
 
     // Create a success embed and reply to the interaction
     const embed = createSuccessEmbed(
-      "Recap Created 🎉",
-      `Recap **${infoTitle}** added to campaign **${campaignName}**.`,
+      getSuccessString(`${infoTitle} Created`, { partyPopper: true }),
+      successsMessage,
     );
     await interaction.reply({ embeds: [embed] });
   } catch (error: any) {
@@ -135,7 +153,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
       await handleError(
         interaction,
         error,
-        "There was an error creating the campaign.",
+        getErrorString("There was an error creating the information block."),
       );
     }
   }
