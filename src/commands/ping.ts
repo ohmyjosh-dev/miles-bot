@@ -1,6 +1,6 @@
 // ping.ts
 import { CommandInteraction, SlashCommandBuilder } from "discord.js";
-import { getRandomString } from "../utils";
+import { customizeText, getRandomString } from "../utils";
 import { MILES_RANDOM_RESPONSES } from "../consts";
 
 export const data = new SlashCommandBuilder()
@@ -10,5 +10,7 @@ export const data = new SlashCommandBuilder()
 export async function execute(interaction: CommandInteraction) {
   const response = getRandomString(MILES_RANDOM_RESPONSES);
   // This will mention the user who called the command
-  return interaction.reply(`Hello ${interaction.user}. ${response}`);
+  return interaction.reply(
+    customizeText(`Hello ${interaction.user}. ${response}`, { append: true })
+  );
 }

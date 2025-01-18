@@ -153,17 +153,24 @@ export function customizeFooter(props: { text: string }): { text: string } {
 }
 
 /**
- * Does bot-size customization of text as needed
+ * Does bot-side customization of text as needed
  *
- * @param title string
+ * @param text string
  * @returns string
  */
-export function customizeText(title: string): string {
+export function customizeText(
+  text: string,
+  options?: { append?: boolean }
+): string {
   if (isDevelopment) {
-    return `⚠️ MAINTENANCE MODE: This data is from a test database and is not accurate | ${title} | ${BOT_ENV}`;
+    if (options?.append) {
+      return `${text} Please be aware that I am in Developer Mode. Data will be incorrect and not all functions may work. | ⚠️ ${BOT_ENV}`;
+    }
+
+    return `⚠️ MAINTENANCE MODE: This data is from a test database and is not accurate \n\n${text} | ${BOT_ENV}`;
   }
 
-  return title;
+  return text;
 }
 
 /**
