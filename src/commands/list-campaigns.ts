@@ -53,16 +53,18 @@ export async function execute(interaction: ChatInputCommandInteraction) {
       }
 
       // Retrieve additional info for this campaign from the campaign_info table.
+      // Sort order logic (note to self because i don't know sql)
+      // -1 show last. 0 show first. 1 show second. 2 show third. etc.
       const campaignInfo = await db.all(
         `SELECT id, title, description, link, sort_order 
          FROM campaign_info 
          WHERE campaign_id = $campaign_id 
-         ORDER BY sort_order ASC`,
+         ORDER BY CASE WHEN sort_order = -1 THEN 1 ELSE 0 END, sort_order ASC`,
         { $campaign_id: campaign.id },
       );
 
       // Build the embed with campaign and its details
-      const embed = createSuccessEmbed(`Campaign: ${campaign.campaign_name}`);
+      const embed = createSuccessEmbed(`${campaign.campaign_name}`);
       embed.setDescription(
         `${campaign.description} \n \`Campaign id:${campaign.id}\``,
       );
