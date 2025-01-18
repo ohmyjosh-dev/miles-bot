@@ -4,7 +4,7 @@ import { getDbConnection } from "../database";
 import { createErrorEmbed, createSuccessEmbed } from "../utils";
 
 export const data = new SlashCommandBuilder()
-  .setName("miles-list-campaigns")
+  .setName("miles-campaigns")
   .setDescription("Lists all campaigns in this server.");
 
 export async function execute(interaction: ChatInputCommandInteraction) {

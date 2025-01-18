@@ -115,7 +115,7 @@ export function createErrorEmbed(
   description?: string
 ): EmbedBuilder {
   const embed = new EmbedBuilder()
-    .setTitle(title)
+    .setTitle(customizeText(title))
     .setColor(ERROR_COLOR)
     .setTimestamp();
 
@@ -152,6 +152,12 @@ export function customizeFooter(props: { text: string }): { text: string } {
   return { text: customizeText(props.text) };
 }
 
+/**
+ * Does bot-size customization of text as needed
+ *
+ * @param title string
+ * @returns string
+ */
 export function customizeText(title: string): string {
   if (isDevelopment) {
     return `⚠️ MAINTENANCE MODE: This data is from a test database and is not accurate | ${title} | ${BOT_ENV}`;
