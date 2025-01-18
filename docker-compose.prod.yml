@@ -1,4 +1,3 @@
-version: "3.9"
 services:
   milesbot:
     image: registry.ubuntu-webserver.lan/milesbot:latest
