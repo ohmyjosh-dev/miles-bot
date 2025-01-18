@@ -1,19 +1,18 @@
 // src/commands/create-campaign.ts
+import { randomUUID } from "crypto";
 import {
   ChatInputCommandInteraction,
-  SlashCommandBuilder,
   GuildMember,
+  SlashCommandBuilder,
 } from "discord.js";
+import { DM_ROLE_NAME } from "../consts";
 import { getDbConnection } from "../database";
 import {
-  handleError,
-  ensureGuild,
-  createSuccessEmbed,
   createErrorEmbed,
-  isValidURL,
+  createSuccessEmbed,
+  ensureGuild,
+  handleError,
 } from "../utils";
-import { DM_ROLE_NAME } from "../consts";
-import { randomUUID } from "crypto";
 
 export const data = new SlashCommandBuilder()
   .setName("miles-create-campaign")
@@ -39,7 +38,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
   // Check if the user has the "DM" role
   const member = interaction.member as GuildMember;
   const hasDmRole = member.roles.cache.some(
-    (role) => role.name === DM_ROLE_NAME,
+    (role) => role.name.toLowerCase() === DM_ROLE_NAME.toLowerCase(),
   );
   if (!hasDmRole) {
     const embed = createErrorEmbed(
@@ -55,19 +54,6 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     .trim();
   const description = interaction.options.getString("description", true).trim();
 
-  const recapLink = interaction.options
-    .getString("recap_master_link", true)
-    .trim();
-
-  // Validate the recap link URL
-  if (!isValidURL(recapLink)) {
-    const embed = createErrorEmbed(
-      "Invalid URL ❌",
-      "Please provide a valid URL for the recap link.",
-    );
-    return interaction.reply({ embeds: [embed] });
-  }
-
   try {
     const db = await getDbConnection();
 
@@ -75,14 +61,14 @@ export async function execute(interaction: ChatInputCommandInteraction) {
 
     // Insert the new campaign
     await db.run(
-      `INSERT INTO campaigns (id, guild_id, campaign_name, description, recap_master_link) VALUES (?, ?, ?, ?, ?)`,
-      [newCampaignId, guildId, campaignName, description, recapLink],
+      `INSERT INTO campaigns (id, guild_id, campaign_name, description) VALUES (?, ?, ?, ?)`,
+      [newCampaignId, guildId, campaignName, description],
     );
 
     const embed = createSuccessEmbed(
       "Campaign Created 🎉",
       `Campaign **${campaignName}** created successfully!\n` +
-        `debug: link: ${recapLink}`,
+        `description: ${description}`,
     );
     await interaction.reply({ embeds: [embed] });
   } catch (error: any) {
