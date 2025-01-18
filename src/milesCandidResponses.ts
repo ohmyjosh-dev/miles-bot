@@ -1,11 +1,15 @@
 import { Message } from "discord.js";
 import { MILES_KNOCK_KNOCK_RESPONSES, MILES_RANDOM_RESPONSES } from "./consts";
-import { getRandomString } from "./utils";
+import { getPingResponse, getRandomString } from "./utils";
 
 let knockKnockFlag1: string[] = [];
 let knockKnockFlag2: string[] = [];
 
 export const milesCandidResponses = (msg: Message<boolean>): void => {
+  if (msg.content.toLowerCase().includes("hello miles")) {
+    msg.reply(getPingResponse(`Hello ${msg.author}.`));
+  }
+
   knockKnockJoke(msg);
 
   // should run last

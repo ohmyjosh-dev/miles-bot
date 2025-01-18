@@ -1,10 +1,20 @@
 // src/utils.ts
-import { ChatInputCommandInteraction, EmbedBuilder } from "discord.js";
+import {
+  ChatInputCommandInteraction,
+  CommandInteraction,
+  EmbedBuilder,
+  InteractionResponse,
+} from "discord.js";
 import { Database } from "sqlite";
 import { getDbConnection } from "./database";
 import { environment } from "./defs";
 import { BOT_ENV } from "./config";
-import { ERROR_COLOR, SUCCESS_COLOR, VALID_UUID_REGEX } from "./consts";
+import {
+  ERROR_COLOR,
+  MILES_RANDOM_RESPONSES,
+  SUCCESS_COLOR,
+  VALID_UUID_REGEX,
+} from "./consts";
 
 export const isDevelopment = BOT_ENV === environment.dev;
 
@@ -89,7 +99,7 @@ export async function handleError(
   interaction: ChatInputCommandInteraction,
   error: any,
   customMessage: string = "There was an error processing your request."
-) {
+): Promise<void> {
   console.error(error);
   if (interaction.replied || interaction.deferred) {
     await interaction.followUp({
@@ -186,4 +196,11 @@ export function getRandomString(arr: string[]): string {
 
   const randomIndex = Math.floor(Math.random() * arr.length);
   return arr[randomIndex];
+}
+
+export function getPingResponse(text: string): string {
+  const response = getRandomString(MILES_RANDOM_RESPONSES);
+
+  // This will mention the user who called the command
+  return customizeText(`${text} ${response}`, { append: true });
 }
