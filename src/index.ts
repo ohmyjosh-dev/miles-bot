@@ -8,6 +8,8 @@ import { commands } from "./commands";
 import { handleDeleteConfirmation } from "./commands/delete-campaign";
 import { config } from "./config";
 import { CANCEL_BUTTON_ID, CONFIRM_DELETE_CAMPAIGN } from "./consts";
+import { getDbConnection } from "./database";
+import { CommandName, OptionName } from "./defs";
 import { deployCommands } from "./deploy-commands";
 import { milesCandidResponses } from "./milesCandidResponses";
 // import { startSchedulers } from "./scheduler/scheduler"; // Uncomment if you have schedulers
@@ -97,6 +99,48 @@ client.on("interactionCreate", async (interaction) => {
       content: "This button interaction is not recognized.",
       ephemeral: true,
     });
+  }
+
+  if (interaction.isAutocomplete()) {
+    if (interaction.commandName === CommandName.milesCampaigns) {
+      const focusedOption = interaction.options.getFocused(true);
+
+      if (focusedOption.name === OptionName.campaignName) {
+        try {
+          const db = await getDbConnection();
+          const guildId = interaction.guildId;
+
+          if (!guildId) {
+            return interaction.respond([]);
+          }
+          // Query for campaign names matching the partial value.
+          const results: { campaign_name: string }[] = await db.all(
+            `SELECT campaign_name
+             FROM campaigns
+             WHERE guild_id = $guild_id 
+               AND campaign_name LIKE $value
+             ORDER BY campaign_name ASC`,
+            {
+              $guild_id: guildId,
+              $value: `%${focusedOption.value}%`,
+            },
+          );
+
+          // Format the results as choices (limit to 25 as Discord requires)
+          const choices = results
+            .map((row) => ({
+              name: row.campaign_name,
+              value: row.campaign_name,
+            }))
+            .slice(0, 25);
+
+          return interaction.respond(choices);
+        } catch (error) {
+          console.error("Autocomplete error:", error);
+          return await interaction.respond([]);
+        }
+      }
+    }
   }
 });
 

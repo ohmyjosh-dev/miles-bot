@@ -4,11 +4,11 @@ import {
   InteractionResponse,
   SlashCommandBuilder,
 } from "discord.js";
-import { customizeText, getPingResponse, getRandomString } from "../utils";
-import { MILES_RANDOM_RESPONSES } from "../consts";
+import { CommandName } from "../defs";
+import { getPingResponse } from "../utils";
 
 export const data = new SlashCommandBuilder()
-  .setName("hello-miles")
+  .setName(CommandName.helloMiles)
   .setDescription("Say Hi!");
 
 export async function execute(

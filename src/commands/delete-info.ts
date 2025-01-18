@@ -6,6 +6,7 @@ import {
 } from "discord.js";
 import { DM_ROLE_NAME } from "../consts";
 import { getDbConnection } from "../database";
+import { CommandName } from "../defs";
 import {
   createErrorEmbed,
   ensureGuild,
@@ -16,7 +17,7 @@ import {
 } from "../utils";
 
 export const data = new SlashCommandBuilder()
-  .setName("miles-delete-info")
+  .setName(CommandName.milesDeleteInfo)
   .setDescription("Deletes a specific information block by its ID.")
   .addStringOption((option) =>
     option

@@ -7,6 +7,7 @@ import {
 } from "discord.js";
 import { DM_ROLE_NAME } from "../consts";
 import { getDbConnection } from "../database";
+import { CommandName } from "../defs";
 import {
   createErrorEmbed,
   createSuccessEmbed,
@@ -19,7 +20,7 @@ import {
 } from "../utils";
 
 export const data = new SlashCommandBuilder()
-  .setName("miles-update-info")
+  .setName(CommandName.milesUpdateInfo)
   .setDescription("Adds or Edits information for a specific campaign.")
   .addStringOption((option) =>
     option

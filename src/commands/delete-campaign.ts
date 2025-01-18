@@ -15,6 +15,7 @@ import {
   DM_ROLE_NAME,
 } from "../consts";
 import { getDbConnection } from "../database";
+import { CommandName } from "../defs";
 import {
   createErrorEmbed,
   ensureGuild,
@@ -24,7 +25,7 @@ import {
 } from "../utils";
 
 export const data = new SlashCommandBuilder()
-  .setName("miles-delete-campaign")
+  .setName(CommandName.milesDeleteCampaign)
   .setDescription(
     "Deletes a specific campaign by its ID along with all associated Information Blocks.",
   )

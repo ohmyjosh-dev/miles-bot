@@ -1,18 +1,20 @@
 // src/commands/list-campaigns.ts
 import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
 import { getDbConnection } from "../database";
+import { CommandName, OptionName } from "../defs";
 import { createErrorEmbed, createSuccessEmbed, getErrorString } from "../utils";
 
 export const data = new SlashCommandBuilder()
-  .setName("miles-campaigns")
+  .setName(CommandName.milesCampaigns)
   .setDescription("Lists campaigns")
   .addStringOption((option) =>
     option
-      .setName("campaign_name")
+      .setName(OptionName.campaignName)
       .setDescription(
         "OPTIONAL: Include the name of the campaign to return additional campaign details.",
       )
-      .setRequired(false),
+      .setRequired(false)
+      .setAutocomplete(true),
   );
 
 export async function execute(interaction: ChatInputCommandInteraction) {

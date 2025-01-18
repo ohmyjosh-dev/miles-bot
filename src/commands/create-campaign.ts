@@ -7,6 +7,7 @@ import {
 } from "discord.js";
 import { DM_ROLE_NAME } from "../consts";
 import { getDbConnection } from "../database";
+import { CommandName } from "../defs";
 import {
   createErrorEmbed,
   createSuccessEmbed,
@@ -17,7 +18,7 @@ import {
 } from "../utils";
 
 export const data = new SlashCommandBuilder()
-  .setName("miles-create-campaign")
+  .setName(CommandName.milesCreateCampaign)
   .setDescription("Creates a new campaign with a title and description.")
   .addStringOption((option) =>
     option
