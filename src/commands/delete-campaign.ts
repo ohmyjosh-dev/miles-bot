@@ -1,27 +1,26 @@
 // src/commands/delete-campaign.ts
 import {
-  ChatInputCommandInteraction,
-  SlashCommandBuilder,
-  GuildMember,
-  ButtonBuilder,
-  ButtonStyle,
   ActionRowBuilder,
+  ButtonBuilder,
   ButtonInteraction,
+  ButtonStyle,
   CacheType,
+  ChatInputCommandInteraction,
+  GuildMember,
+  SlashCommandBuilder,
 } from "discord.js";
-import {
-  handleError,
-  ensureGuild,
-  createErrorEmbed,
-  createSuccessEmbed,
-  isValidUUID,
-} from "../utils";
-import { getDbConnection } from "../database";
 import {
   CANCEL_BUTTON_ID,
   CONFIRM_DELETE_CAMPAIGN,
   DM_ROLE_NAME,
 } from "../consts";
+import { getDbConnection } from "../database";
+import {
+  createErrorEmbed,
+  ensureGuild,
+  handleError,
+  isValidUUID,
+} from "../utils";
 
 export const data = new SlashCommandBuilder()
   .setName("miles-delete-campaign")
@@ -143,12 +142,12 @@ export async function handleDeleteConfirmation(
       campaignId,
       guildId,
     ]);
-    await db.run(`DELETE FROM milesbot_recaps WHERE campaign_id = ?`, [
+    await db.run(`DELETE FROM campaign_info WHERE campaign_id = ?`, [
       campaignId,
     ]);
 
     const embed = createErrorEmbed(
-      `Campaign with \`name: ${campaign.campaign_name}\` has been deleted along with all associated recaps✅`,
+      `Campaign with \`name: ${campaign.campaign_name}\` has been deleted along with all associated Info ✅`,
     );
 
     await interaction.reply({
