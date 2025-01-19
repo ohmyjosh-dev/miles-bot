@@ -148,15 +148,40 @@ client.on("interactionCreate", async (interaction) => {
           if (!guildId) {
             return interaction.respond([]);
           }
+
+          const campaignNameOption = interaction.options
+            .getString(OptionName.campaignName, true)
+            ?.trim();
+          if (!campaignNameOption) {
+            // If for some reason no campaign name is provided, respond with empty choices.
+            return interaction.respond([]);
+          }
+
+          // Query to find the campaign using the provided campaign name and guild ID.
+          const campaign = await db.get(
+            `SELECT id FROM campaigns WHERE guild_id = $guild_id AND campaign_name = $campaign_name`,
+            {
+              $guild_id: guildId,
+              $campaign_name: campaignNameOption,
+            },
+          );
+
+          if (!campaign) {
+            // No campaign found, return empty array.
+            return interaction.respond([]);
+          }
+
           // Query for info titles matching the partial value.
           const results: { title: string }[] = await db.all(
             `SELECT title
              FROM campaign_info
              WHERE guild_id = $guild_id 
+               AND campaign_id = $campaign_id
                AND title LIKE $value
              ORDER BY title ASC`,
             {
               $guild_id: guildId,
+              $campaign_id: campaign.id,
               $value: `%${focusedOption.value}%`,
             },
           );
