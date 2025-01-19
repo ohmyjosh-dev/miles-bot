@@ -152,6 +152,15 @@ export async function execute(interaction: ChatInputCommandInteraction) {
       getSuccessString(successTitle, { partyPopper: true }),
       successsMessage,
     );
+
+    embed.addFields({
+      name: infoTitle,
+      value:
+        (descriptionWithNewLines ? `${descriptionWithNewLines}\n` : "") +
+        (infoLink ? `${infoLink}\n` : "") +
+        `\`info id: ${infoId}\``,
+    });
+
     await interaction.reply({ embeds: [embed] });
   } catch (error: any) {
     if (error.message.includes("UNIQUE constraint failed")) {
