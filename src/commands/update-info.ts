@@ -164,7 +164,9 @@ export async function execute(interaction: ChatInputCommandInteraction) {
       await handleError(
         interaction,
         error,
-        getErrorString("There was an error creating the information block."),
+        getErrorString(
+          "There was an error creating or editing the information block.",
+        ),
       );
     }
   }

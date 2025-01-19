@@ -56,12 +56,22 @@ export async function execute(interaction: ChatInputCommandInteraction) {
   const campaignName = interaction.options
     .getString("campaign_name", true)
     .trim();
-  const description = interaction.options.getString("description", true).trim();
+  const description = interaction.options
+    .getString("description", true)
+    .trim()
+    .replace(/\\n/g, "\n");
 
   try {
     const db = await getDbConnection();
 
-    const newCampaignId = randomUUID();
+    const existingRecord = await db.get(
+      `SELECT id FROM campaigns WHERE guild_id = $guild_id AND campaign_name = $campaign_name`,
+      { $guild_id: guildId, $campaign_name: campaignName },
+    );
+
+    const isUpdate = Boolean(existingRecord);
+
+    const campaignId = existingRecord?.id ?? randomUUID();
 
     // Insert the new campaign
     await db.run(
@@ -70,16 +80,19 @@ export async function execute(interaction: ChatInputCommandInteraction) {
       ON CONFLICT(guild_id, campaign_name) DO UPDATE SET
         description = excluded.description;`,
       {
-        $id: newCampaignId,
+        $id: campaignId,
         $guild_id: guildId,
         $campaign_name: campaignName,
         $description: description,
       },
     );
 
+    const successTitle = isUpdate ? "Campaign Updated" : "Campaign Created";
+    const action = isUpdate ? "updated" : "created";
+
     const embed = createSuccessEmbed(
-      getSuccessString("Campaign Created", { partyPopper: true }),
-      `Campaign **${campaignName}** created successfully!\n` +
+      getSuccessString(successTitle, { partyPopper: true }),
+      `Campaign **${campaignName}** ${action} successfully!\n` +
         `description: ${description}`,
     );
     await interaction.reply({ embeds: [embed] });
@@ -94,7 +107,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
       await handleError(
         interaction,
         error,
-        "There was an error creating the campaign.",
+        "There was an error creating or editing the campaign.",
       );
     }
   }
