@@ -91,6 +91,10 @@ export async function execute(interaction: ChatInputCommandInteraction) {
   const infoLink = interaction.options.getString("info_link", false)?.trim();
   const sortOrder = interaction.options.getNumber("sort_order", false);
 
+  let descriptionWithNewLines: string | null = infoDescription
+    ? infoDescription.replace(/\\n/g, "\n")
+    : null;
+
   // Validate the info link URL
   if (infoLink && !isValidURL(infoLink)) {
     const embed = createErrorEmbed(
@@ -129,7 +133,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
         $guild_id: guildId,
         $campaign_id: campaignId,
         $title: infoTitle,
-        $description: infoDescription ?? null,
+        $description: descriptionWithNewLines ?? null,
         $link: infoLink ?? null,
         $sort_order: sortOrder ?? null,
       },
