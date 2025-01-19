@@ -7,7 +7,7 @@ import {
 } from "discord.js";
 import { DM_ROLE_NAME } from "../consts";
 import { getDbConnection } from "../database";
-import { CommandName } from "../defs";
+import { CommandName, OptionName } from "../defs";
 import {
   createErrorEmbed,
   createSuccessEmbed,
@@ -18,17 +18,18 @@ import {
 } from "../utils";
 
 export const data = new SlashCommandBuilder()
-  .setName(CommandName.milesCreateCampaign)
+  .setName(CommandName.milesManageCampaign)
   .setDescription("Creates a new campaign with a title and description.")
   .addStringOption((option) =>
     option
       .setName("campaign_name")
       .setDescription("The name of the campaign.")
-      .setRequired(true),
+      .setRequired(true)
+      .setAutocomplete(true),
   )
   .addStringOption((option) =>
     option
-      .setName("description")
+      .setName(OptionName.campaignDescription)
       .setDescription("A description of the campaign.")
       .setRequired(true),
   );
@@ -64,8 +65,16 @@ export async function execute(interaction: ChatInputCommandInteraction) {
 
     // Insert the new campaign
     await db.run(
-      `INSERT INTO campaigns (id, guild_id, campaign_name, description) VALUES (?, ?, ?, ?)`,
-      [newCampaignId, guildId, campaignName, description],
+      `INSERT INTO campaigns (id, guild_id, campaign_name, description) 
+      VALUES ($id, $guild_id, $campaign_name, $description)
+      ON CONFLICT(guild_id, campaign_name) DO UPDATE SET
+        description = excluded.description;`,
+      {
+        $id: newCampaignId,
+        $guild_id: guildId,
+        $campaign_name: campaignName,
+        $description: description,
+      },
     );
 
     const embed = createSuccessEmbed(

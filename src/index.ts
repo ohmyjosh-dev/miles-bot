@@ -104,7 +104,8 @@ client.on("interactionCreate", async (interaction) => {
   if (interaction.isAutocomplete()) {
     if (
       interaction.commandName === CommandName.milesCampaigns ||
-      interaction.commandName === CommandName.milesUpdateInfo
+      interaction.commandName === CommandName.milesUpdateInfo ||
+      interaction.commandName === CommandName.milesManageCampaign
     ) {
       const focusedOption = interaction.options.getFocused(true);
 

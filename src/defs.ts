@@ -6,7 +6,7 @@ export const environment = {
 export enum CommandName {
   helloMiles = "hello-miles",
   milesCampaigns = "miles-campaigns",
-  milesCreateCampaign = "miles-create-campaign",
+  milesManageCampaign = "miles-manage-campaign",
   milesDeleteCampaign = "miles-delete-campaign",
   milesDeleteInfo = "miles-delete-info",
   milesUpdateInfo = "miles-update-info",
@@ -14,6 +14,7 @@ export enum CommandName {
 
 export enum OptionName {
   campaignName = "campaign_name",
+  campaignDescription = "description",
   infoTitle = "info_title",
   infoDescription = "info_description",
   infoLink = "info_link",
