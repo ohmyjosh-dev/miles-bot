@@ -93,7 +93,8 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     const embed = createSuccessEmbed(
       getSuccessString(successTitle, { partyPopper: true }),
       `Campaign **${campaignName}** ${action} successfully!\n` +
-        `description: ${description}`,
+        `description: ${description}\n` +
+        `\`campaign_id: ${campaignId}\``,
     );
     await interaction.reply({ embeds: [embed] });
   } catch (error: any) {
