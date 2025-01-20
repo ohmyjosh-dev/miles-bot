@@ -16,6 +16,7 @@ import { getDbConnection } from "./database";
 import { CommandName, OptionName } from "./defs";
 import { deployCommands } from "./deploy-commands";
 import { milesCandidResponses } from "./milesCandidResponses";
+import { sendCampaignDetails } from "./utils/campaign-helpers";
 // import { startSchedulers } from "./scheduler/scheduler"; // Uncomment if you have schedulers
 
 const client = new Client({
@@ -104,7 +105,13 @@ client.on("interactionCreate", async (interaction) => {
         "",
       );
 
-      // reused code from list-campaigns.ts goes here
+      await sendCampaignDetails(
+        campaignName,
+        interaction.guildId!,
+        false,
+        interaction,
+      );
+      return;
     }
 
     // Handle other button interactions or send a generic error if the button is unrecognized
