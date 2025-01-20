@@ -17,7 +17,7 @@ import {
   getSuccessString,
   handleError,
   isValidURL,
-} from "../utils";
+} from "../utils/utils";
 
 export const data = new SlashCommandBuilder()
   .setName(CommandName.milesUpdateInfo)

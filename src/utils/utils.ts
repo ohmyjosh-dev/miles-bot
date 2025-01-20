@@ -1,15 +1,15 @@
 // src/utils.ts
 import { ChatInputCommandInteraction, EmbedBuilder } from "discord.js";
 import { Database } from "sqlite";
-import { BOT_ENV } from "./config";
+import { BOT_ENV } from "../config";
 import {
   ERROR_COLOR,
   MILES_RANDOM_RESPONSES,
   SUCCESS_COLOR,
   VALID_UUID_REGEX,
-} from "./consts";
-import { getDbConnection } from "./database";
-import { environment } from "./defs";
+} from "../consts";
+import { getDbConnection } from "../database";
+import { environment } from "../defs";
 
 export const isDevelopment = BOT_ENV === environment.dev;
 

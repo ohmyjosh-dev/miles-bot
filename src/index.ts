@@ -7,7 +7,11 @@ import {
 import { commands } from "./commands";
 import { handleDeleteConfirmation } from "./commands/delete-campaign";
 import { config } from "./config";
-import { CANCEL_BUTTON_ID, CONFIRM_DELETE_CAMPAIGN } from "./consts";
+import {
+  CANCEL_BUTTON_ID,
+  CONFIRM_DELETE_CAMPAIGN,
+  VIEW_CAMPAIGN_BUTTON_ID_PREFIX,
+} from "./consts";
 import { getDbConnection } from "./database";
 import { CommandName, OptionName } from "./defs";
 import { deployCommands } from "./deploy-commands";
@@ -90,6 +94,17 @@ client.on("interactionCreate", async (interaction) => {
         ephemeral: true,
       });
       return;
+    }
+
+    if (
+      customIdLower.startsWith(VIEW_CAMPAIGN_BUTTON_ID_PREFIX.toLowerCase())
+    ) {
+      const campaignName = interaction.customId.replace(
+        VIEW_CAMPAIGN_BUTTON_ID_PREFIX,
+        "",
+      );
+
+      // reused code from list-campaigns.ts goes here
     }
 
     // Handle other button interactions or send a generic error if the button is unrecognized

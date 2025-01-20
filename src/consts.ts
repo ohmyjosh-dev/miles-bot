@@ -9,6 +9,8 @@ export const SUCCESS_COLOR = 0x23ce6b;
 
 export const DM_ROLE_NAME = "DM";
 
+export const VIEW_CAMPAIGN_BUTTON_ID_PREFIX = "`manage_campaigns_";
+
 export const VALID_UUID_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 

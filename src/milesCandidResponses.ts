@@ -1,6 +1,6 @@
 import { Message } from "discord.js";
 import { MILES_KNOCK_KNOCK_RESPONSES } from "./consts";
-import { getPingResponse, getRandomString } from "./utils";
+import { getPingResponse, getRandomString } from "./utils/utils";
 
 let knockKnockFlag1: string[] = [];
 let knockKnockFlag2: string[] = [];

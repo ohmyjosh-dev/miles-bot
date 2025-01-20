@@ -14,7 +14,7 @@ import {
   getSuccessString,
   handleError,
   isValidUUID,
-} from "../utils";
+} from "../utils/utils";
 
 export const data = new SlashCommandBuilder()
   .setName(CommandName.milesDeleteInfo)

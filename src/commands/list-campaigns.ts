@@ -1,8 +1,19 @@
 // src/commands/list-campaigns.ts
-import { ChatInputCommandInteraction, SlashCommandBuilder } from "discord.js";
+import {
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  ChatInputCommandInteraction,
+  SlashCommandBuilder,
+} from "discord.js";
+import { VIEW_CAMPAIGN_BUTTON_ID_PREFIX } from "../consts";
 import { getDbConnection } from "../database";
 import { CommandName, OptionName } from "../defs";
-import { createErrorEmbed, createSuccessEmbed, getErrorString } from "../utils";
+import {
+  createErrorEmbed,
+  createSuccessEmbed,
+  getErrorString,
+} from "../utils/utils";
 
 export const data = new SlashCommandBuilder()
   .setName(CommandName.milesCampaigns)
@@ -118,28 +129,38 @@ export async function execute(interaction: ChatInputCommandInteraction) {
         return interaction.reply({ embeds: [embed] });
       }
 
-      const embed = createSuccessEmbed("Campaigns 📜");
-
-      campaigns.forEach((campaign) => {
-        const value =
+      for (const campaign of campaigns) {
+        // Create embed for each campaign:
+        const embed = createSuccessEmbed(campaign.campaign_name);
+        embed.setDescription(
           `${campaign.description}` +
-          (showIdsOption ? `\n\`id: ${campaign.id}\`` : "");
+            (showIdsOption ? `\n\`id: ${campaign.id}\`` : ""),
+        );
 
-        embed.addFields({
-          name: campaign.campaign_name,
-          value: value,
-          inline: false,
-        });
-      });
+        // Create a button for the campaign:
+        const button = new ButtonBuilder()
+          .setLabel(`View ${campaign.campaign_name}`)
+          .setStyle(ButtonStyle.Primary)
+          .setCustomId(
+            `${VIEW_CAMPAIGN_BUTTON_ID_PREFIX}${campaign.campaign_name}`,
+          );
 
-      embed.addFields({
-        name: "Additional Information",
-        value:
-          `To view details of a specific campaign, use: \n` +
-          `\`/${CommandName.milesCampaigns} --campaign_name <campaign_name>\``,
-      });
+        const row = new ActionRowBuilder<ButtonBuilder>().addComponents(button);
 
-      return interaction.reply({ embeds: [embed] });
+        // Send a separate message for each campaign
+        if (
+          interaction.channel &&
+          "send" in interaction.channel &&
+          typeof interaction.channel.send === "function"
+        ) {
+          await interaction.channel?.send({
+            embeds: [embed],
+            components: [row],
+          });
+        }
+      }
+
+      return interaction.reply({ content: "Getting Campaigns..." });
     }
   } catch (error) {
     const embed = createErrorEmbed(

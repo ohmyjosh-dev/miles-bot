@@ -15,7 +15,7 @@ import {
   getErrorString,
   getSuccessString,
   handleError,
-} from "../utils";
+} from "../utils/utils";
 
 export const data = new SlashCommandBuilder()
   .setName(CommandName.milesManageCampaign)
