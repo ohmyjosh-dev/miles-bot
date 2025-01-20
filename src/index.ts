@@ -7,11 +7,16 @@ import {
 import { commands } from "./commands";
 import { handleDeleteConfirmation } from "./commands/delete-campaign";
 import { config } from "./config";
-import { CANCEL_BUTTON_ID, CONFIRM_DELETE_CAMPAIGN } from "./consts";
+import {
+  CANCEL_BUTTON_ID,
+  CONFIRM_DELETE_CAMPAIGN,
+  VIEW_CAMPAIGN_BUTTON_ID_PREFIX,
+} from "./consts";
 import { getDbConnection } from "./database";
 import { CommandName, OptionName } from "./defs";
 import { deployCommands } from "./deploy-commands";
 import { milesCandidResponses } from "./milesCandidResponses";
+import { sendCampaignDetails } from "./utils/campaign-helpers";
 // import { startSchedulers } from "./scheduler/scheduler"; // Uncomment if you have schedulers
 
 const client = new Client({
@@ -92,6 +97,23 @@ client.on("interactionCreate", async (interaction) => {
       return;
     }
 
+    if (
+      customIdLower.startsWith(VIEW_CAMPAIGN_BUTTON_ID_PREFIX.toLowerCase())
+    ) {
+      const campaignName = interaction.customId.replace(
+        VIEW_CAMPAIGN_BUTTON_ID_PREFIX,
+        "",
+      );
+
+      await sendCampaignDetails(
+        campaignName,
+        interaction.guildId!,
+        false,
+        interaction,
+      );
+      return;
+    }
+
     // Handle other button interactions or send a generic error if the button is unrecognized
     // You can choose to ignore unrecognized buttons or notify the user
     // For example:
@@ -104,7 +126,8 @@ client.on("interactionCreate", async (interaction) => {
   if (interaction.isAutocomplete()) {
     if (
       interaction.commandName === CommandName.milesCampaigns ||
-      interaction.commandName === CommandName.milesUpdateInfo
+      interaction.commandName === CommandName.milesUpdateInfo ||
+      interaction.commandName === CommandName.milesManageCampaign
     ) {
       const focusedOption = interaction.options.getFocused(true);
 
@@ -147,15 +170,40 @@ client.on("interactionCreate", async (interaction) => {
           if (!guildId) {
             return interaction.respond([]);
           }
+
+          const campaignNameOption = interaction.options
+            .getString(OptionName.campaignName, true)
+            ?.trim();
+          if (!campaignNameOption) {
+            // If for some reason no campaign name is provided, respond with empty choices.
+            return interaction.respond([]);
+          }
+
+          // Query to find the campaign using the provided campaign name and guild ID.
+          const campaign = await db.get(
+            `SELECT id FROM campaigns WHERE guild_id = $guild_id AND campaign_name = $campaign_name`,
+            {
+              $guild_id: guildId,
+              $campaign_name: campaignNameOption,
+            },
+          );
+
+          if (!campaign) {
+            // No campaign found, return empty array.
+            return interaction.respond([]);
+          }
+
           // Query for info titles matching the partial value.
           const results: { title: string }[] = await db.all(
             `SELECT title
              FROM campaign_info
              WHERE guild_id = $guild_id 
+               AND campaign_id = $campaign_id
                AND title LIKE $value
              ORDER BY title ASC`,
             {
               $guild_id: guildId,
+              $campaign_id: campaign.id,
               $value: `%${focusedOption.value}%`,
             },
           );

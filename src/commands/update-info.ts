@@ -17,7 +17,7 @@ import {
   getSuccessString,
   handleError,
   isValidURL,
-} from "../utils";
+} from "../utils/utils";
 
 export const data = new SlashCommandBuilder()
   .setName(CommandName.milesUpdateInfo)
@@ -152,6 +152,15 @@ export async function execute(interaction: ChatInputCommandInteraction) {
       getSuccessString(successTitle, { partyPopper: true }),
       successsMessage,
     );
+
+    embed.addFields({
+      name: infoTitle,
+      value:
+        (descriptionWithNewLines ? `${descriptionWithNewLines}\n` : "") +
+        (infoLink ? `${infoLink}\n` : "") +
+        `\`info id: ${infoId}\``,
+    });
+
     await interaction.reply({ embeds: [embed] });
   } catch (error: any) {
     if (error.message.includes("UNIQUE constraint failed")) {
@@ -164,7 +173,9 @@ export async function execute(interaction: ChatInputCommandInteraction) {
       await handleError(
         interaction,
         error,
-        getErrorString("There was an error creating the information block."),
+        getErrorString(
+          "There was an error creating or editing the information block.",
+        ),
       );
     }
   }

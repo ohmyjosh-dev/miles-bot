@@ -5,7 +5,7 @@ import {
   SlashCommandBuilder,
 } from "discord.js";
 import { CommandName } from "../defs";
-import { getPingResponse } from "../utils";
+import { getPingResponse } from "../utils/utils";
 
 export const data = new SlashCommandBuilder()
   .setName(CommandName.helloMiles)

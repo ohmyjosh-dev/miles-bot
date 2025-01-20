@@ -7,7 +7,7 @@ import {
 } from "discord.js";
 import { DM_ROLE_NAME } from "../consts";
 import { getDbConnection } from "../database";
-import { CommandName } from "../defs";
+import { CommandName, OptionName } from "../defs";
 import {
   createErrorEmbed,
   createSuccessEmbed,
@@ -15,20 +15,21 @@ import {
   getErrorString,
   getSuccessString,
   handleError,
-} from "../utils";
+} from "../utils/utils";
 
 export const data = new SlashCommandBuilder()
-  .setName(CommandName.milesCreateCampaign)
+  .setName(CommandName.milesManageCampaign)
   .setDescription("Creates a new campaign with a title and description.")
   .addStringOption((option) =>
     option
       .setName("campaign_name")
       .setDescription("The name of the campaign.")
-      .setRequired(true),
+      .setRequired(true)
+      .setAutocomplete(true),
   )
   .addStringOption((option) =>
     option
-      .setName("description")
+      .setName(OptionName.campaignDescription)
       .setDescription("A description of the campaign.")
       .setRequired(true),
   );
@@ -55,23 +56,45 @@ export async function execute(interaction: ChatInputCommandInteraction) {
   const campaignName = interaction.options
     .getString("campaign_name", true)
     .trim();
-  const description = interaction.options.getString("description", true).trim();
+  const description = interaction.options
+    .getString("description", true)
+    .trim()
+    .replace(/\\n/g, "\n");
 
   try {
     const db = await getDbConnection();
 
-    const newCampaignId = randomUUID();
+    const existingRecord = await db.get(
+      `SELECT id FROM campaigns WHERE guild_id = $guild_id AND campaign_name = $campaign_name`,
+      { $guild_id: guildId, $campaign_name: campaignName },
+    );
+
+    const isUpdate = Boolean(existingRecord);
+
+    const campaignId = existingRecord?.id ?? randomUUID();
 
     // Insert the new campaign
     await db.run(
-      `INSERT INTO campaigns (id, guild_id, campaign_name, description) VALUES (?, ?, ?, ?)`,
-      [newCampaignId, guildId, campaignName, description],
+      `INSERT INTO campaigns (id, guild_id, campaign_name, description) 
+      VALUES ($id, $guild_id, $campaign_name, $description)
+      ON CONFLICT(guild_id, campaign_name) DO UPDATE SET
+        description = excluded.description;`,
+      {
+        $id: campaignId,
+        $guild_id: guildId,
+        $campaign_name: campaignName,
+        $description: description,
+      },
     );
 
+    const successTitle = isUpdate ? "Campaign Updated" : "Campaign Created";
+    const action = isUpdate ? "updated" : "created";
+
     const embed = createSuccessEmbed(
-      getSuccessString("Campaign Created", { partyPopper: true }),
-      `Campaign **${campaignName}** created successfully!\n` +
-        `description: ${description}`,
+      getSuccessString(successTitle, { partyPopper: true }),
+      `Campaign **${campaignName}** ${action} successfully!\n` +
+        `description: ${description}\n` +
+        `\`campaign_id: ${campaignId}\``,
     );
     await interaction.reply({ embeds: [embed] });
   } catch (error: any) {
@@ -85,7 +108,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
       await handleError(
         interaction,
         error,
-        "There was an error creating the campaign.",
+        "There was an error creating or editing the campaign.",
       );
     }
   }
