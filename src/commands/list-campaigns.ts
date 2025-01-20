@@ -15,6 +15,14 @@ export const data = new SlashCommandBuilder()
       )
       .setRequired(false)
       .setAutocomplete(true),
+  )
+  .addBooleanOption((option) =>
+    option
+      .setName(OptionName.showIds)
+      .setDescription(
+        "OPTIONAL: Show the ids of the campaigns and info blocks.",
+      )
+      .setRequired(false),
   );
 
 export async function execute(interaction: ChatInputCommandInteraction) {
@@ -31,8 +39,11 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     const db = await getDbConnection();
 
     const campaignNameOption = interaction.options
-      .getString("campaign_name", false)
+      .getString(OptionName.campaignName, false)
       ?.trim();
+
+    const showIdsOption =
+      interaction.options.getBoolean(OptionName.showIds, false) ?? false;
 
     if (campaignNameOption) {
       // Query to get one campaign by name and guild_id
@@ -66,18 +77,21 @@ export async function execute(interaction: ChatInputCommandInteraction) {
       // Build the embed with campaign and its details
       const embed = createSuccessEmbed(`${campaign.campaign_name}`);
       embed.setDescription(
-        `${campaign.description} \n \`Campaign id:${campaign.id}\``,
+        `${campaign.description}` +
+          (showIdsOption ? `\n\`Campaign id: ${campaign.id}\`` : ""),
       );
 
       if (campaignInfo.length > 0) {
         // Add each info block as a field in the embed.
         campaignInfo.forEach((info) => {
+          const value =
+            (info.description ? `${info.description}` : "") +
+            (info.link ? `\n${info.link}` : "") +
+            (showIdsOption ? `\n\`info id: ${info.id}\`` : "");
+
           embed.addFields({
             name: info.title,
-            value:
-              (info.description ? `${info.description}\n` : "") +
-              (info.link ? `${info.link}\n` : "") +
-              `\`info id: ${info.id}\``,
+            value: value || "No additional information.",
             inline: false,
           });
         });
@@ -107,9 +121,13 @@ export async function execute(interaction: ChatInputCommandInteraction) {
       const embed = createSuccessEmbed("Campaigns 📜");
 
       campaigns.forEach((campaign) => {
+        const value =
+          `${campaign.description}` +
+          (showIdsOption ? `\n\`id: ${campaign.id}\`` : "");
+
         embed.addFields({
           name: campaign.campaign_name,
-          value: `${campaign.description}\n` + `\`id: ${campaign.id}\``,
+          value: value,
           inline: false,
         });
       });

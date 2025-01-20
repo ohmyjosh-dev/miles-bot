@@ -19,4 +19,5 @@ export enum OptionName {
   infoDescription = "info_description",
   infoLink = "info_link",
   sortOrder = "sort_order",
+  showIds = "show_ids",
 }
