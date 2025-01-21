@@ -134,7 +134,11 @@ export async function sendCampaigns(
       }
     }
 
-    await interaction.reply({ content: "Getting Campaigns..." });
+    if (interaction.isButton()) {
+      await interaction.deferUpdate();
+    } else {
+      await interaction.reply({ content: "\u200b", ephemeral: true });
+    }
   } catch (error) {
     const embed = createErrorEmbed(
       getErrorString("Error"),
