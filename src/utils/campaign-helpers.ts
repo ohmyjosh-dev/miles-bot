@@ -137,7 +137,10 @@ export async function sendCampaigns(
     if (interaction.isButton()) {
       await interaction.deferUpdate();
     } else {
-      await interaction.reply({ content: "\u200b", ephemeral: true });
+      await interaction.reply({
+        content: "Get Campaigns Executed",
+        ephemeral: true,
+      });
     }
   } catch (error) {
     const embed = createErrorEmbed(
