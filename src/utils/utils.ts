@@ -197,7 +197,7 @@ export function getPingResponse(text: string): string {
   const response = getRandomString(MILES_RANDOM_RESPONSES);
 
   // This will mention the user who called the command
-  return customizeText(`${text} ${response}`, { append: true });
+  return `${text} ${response}`;
 }
 
 export function getErrorString(text: string): string {

@@ -117,6 +117,38 @@ export const MILES_RANDOM_RESPONSES: string[] = [
   "Don't make me wait again.",
   "I'm here, remember me.",
   "Don't leave your friend Miles behind.",
+  "Don't let the DM know I'm watching him...",
+];
+
+export const MILES_SEE_CAMPAIGNS_PROMPTS: string[] = [
+  "Would you like to see the campaigns?",
+  "Interested in exploring the campaigns?",
+  "How about a look at the campaigns?",
+  "Shall we review the campaigns?",
+  "Ready to view the campaigns?",
+  "Would you like to browse through the campaigns?",
+  "Curious about the campaigns on the table?",
+  "Fancy a look at the campaigns?",
+  "Should I show you the list of campaigns?",
+  "How about checking out the campaigns?",
+  "Would you care to see the campaigns on display?",
+  "Can I interest you in a tour of the campaigns?",
+  "How about a glance at the campaigns?",
+  "Do you fancy exploring the campaigns?",
+  "Might you want to check out the campaigns?",
+  "Interested in seeing the campaigns?",
+  "Would you like to get a list of campaigns?",
+  "Curious to see which campaigns are uh... just click the button!",
+  "Care to view the campaigns set up for adventure?",
+  "Want to see the campaigns?",
+  "Shall I pull up the list of campaigns for you?",
+  "Would you like to examine the campaigns?",
+  "Do you want to browse the list of campaigns?",
+  "Interested in a rundown of campaigns?",
+  "Should I display the campaigns right now?",
+  "Ready for a tour of the latest campaigns?",
+  "Can I pull up the campaigns for you?",
+  "WHAT DO YOU WANT!?",
 ];
 
 export const MILES_KNOCK_KNOCK_RESPONSES: string[] = [

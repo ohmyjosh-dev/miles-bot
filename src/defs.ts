@@ -21,3 +21,7 @@ export enum OptionName {
   sortOrder = "sort_order",
   showIds = "show_ids",
 }
+
+export enum ButtonId {
+  campaign = "campaign",
+}
