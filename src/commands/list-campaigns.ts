@@ -55,8 +55,6 @@ export async function execute(interaction: ChatInputCommandInteraction) {
       );
     } else {
       await sendCampaigns(guildId, showIdsOption, interaction);
-
-      return interaction.reply({ content: "Getting Campaigns..." });
     }
   } catch (error) {
     const embed = createErrorEmbed(
