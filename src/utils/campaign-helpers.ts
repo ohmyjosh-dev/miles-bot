@@ -1,5 +1,12 @@
 // src/utils/campaign-helpers.ts
-import { ButtonInteraction, ChatInputCommandInteraction } from "discord.js";
+import {
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonInteraction,
+  ButtonStyle,
+  ChatInputCommandInteraction,
+} from "discord.js";
+import { VIEW_CAMPAIGN_BUTTON_ID_PREFIX } from "../consts";
 import { getDbConnection } from "../database";
 import { createErrorEmbed, createSuccessEmbed, getErrorString } from "./utils";
 
@@ -71,5 +78,58 @@ export async function sendCampaignDetails(
       "There was an error retrieving the campaign details.",
     );
     await interaction.reply({ embeds: [embed], ephemeral: true });
+  }
+}
+
+export async function sendCampaigns(
+  guildId: string,
+  showIds: boolean,
+  interaction: ChatInputCommandInteraction | ButtonInteraction,
+): Promise<void> {
+  const db = await getDbConnection();
+
+  const campaigns = await db.all(
+    `SELECT id, campaign_name, description FROM campaigns WHERE guild_id = $guild_id`,
+    { $guild_id: guildId },
+  );
+
+  if (campaigns.length === 0) {
+    const embed = createErrorEmbed(
+      "No Campaigns Found ❌",
+      "There are no campaigns in this server.",
+    );
+
+    await interaction.reply({ embeds: [embed] });
+    return;
+  }
+
+  for (const campaign of campaigns) {
+    // Create embed for each campaign:
+    const embed = createSuccessEmbed(campaign.campaign_name);
+    embed.setDescription(
+      `${campaign.description}` + (showIds ? `\n\`id: ${campaign.id}\`` : ""),
+    );
+
+    // Create a button for the campaign:
+    const button = new ButtonBuilder()
+      .setLabel(`View ${campaign.campaign_name}`)
+      .setStyle(ButtonStyle.Primary)
+      .setCustomId(
+        `${VIEW_CAMPAIGN_BUTTON_ID_PREFIX}${campaign.campaign_name}`,
+      );
+
+    const row = new ActionRowBuilder<ButtonBuilder>().addComponents(button);
+
+    // Send a separate message for each campaign
+    if (
+      interaction.channel &&
+      "send" in interaction.channel &&
+      typeof interaction.channel.send === "function"
+    ) {
+      await interaction.channel?.send({
+        embeds: [embed],
+        components: [row],
+      });
+    }
   }
 }

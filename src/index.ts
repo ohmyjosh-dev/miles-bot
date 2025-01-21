@@ -13,10 +13,11 @@ import {
   VIEW_CAMPAIGN_BUTTON_ID_PREFIX,
 } from "./consts";
 import { getDbConnection } from "./database";
-import { CommandName, OptionName } from "./defs";
+import { ButtonId, CommandName, OptionName } from "./defs";
 import { deployCommands } from "./deploy-commands";
-import { milesCandidResponses } from "./milesCandidResponses";
-import { sendCampaignDetails } from "./utils/campaign-helpers";
+import { helloMiles } from "./hello-miles";
+import { sendCampaignDetails, sendCampaigns } from "./utils/campaign-helpers";
+import { HELLO_MILES_ID_PREFIX } from "./utils/hello-miles/hello-miles.constants";
 // import { startSchedulers } from "./scheduler/scheduler"; // Uncomment if you have schedulers
 
 const client = new Client({
@@ -86,6 +87,7 @@ client.on("interactionCreate", async (interaction) => {
           });
         }
       }
+
       return; // Exit after handling to prevent further replies
     }
 
@@ -94,6 +96,7 @@ client.on("interactionCreate", async (interaction) => {
         content: "Deletion has been cancelled.",
         ephemeral: true,
       });
+
       return;
     }
 
@@ -111,6 +114,12 @@ client.on("interactionCreate", async (interaction) => {
         false,
         interaction,
       );
+      return;
+    }
+
+    if (customIdLower === `${HELLO_MILES_ID_PREFIX}${ButtonId.campaign}`) {
+      await sendCampaigns(interaction.guildId!, false, interaction);
+
       return;
     }
 
@@ -230,7 +239,7 @@ client.on("messageCreate", (msg) => {
   // **1. Ignore Messages from Bots**
   if (!msg || msg.author.bot) return; // If the message author is a bot, exit the handler.
 
-  milesCandidResponses(msg);
+  helloMiles(msg);
 });
 
 client.login(config.DISCORD_TOKEN);

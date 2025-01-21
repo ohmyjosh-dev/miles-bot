@@ -5,7 +5,7 @@ import {
   SlashCommandBuilder,
 } from "discord.js";
 import { CommandName } from "../defs";
-import { getPingResponse } from "../utils/utils";
+import { customizeText, getPingResponse } from "../utils/utils";
 
 export const data = new SlashCommandBuilder()
   .setName(CommandName.helloMiles)
@@ -15,5 +15,9 @@ export async function execute(
   interaction: CommandInteraction,
 ): Promise<InteractionResponse<boolean>> {
   // This will mention the user who called the command
-  return interaction.reply(getPingResponse(`Hello ${interaction.user}.`));
+  return interaction.reply(
+    customizeText(getPingResponse(`Hello ${interaction.user}.`), {
+      append: true,
+    }),
+  );
 }
