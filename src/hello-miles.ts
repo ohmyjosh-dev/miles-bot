@@ -8,11 +8,12 @@ import {
   MILES_KNOCK_KNOCK_RESPONSES,
   MILES_SEE_CAMPAIGNS_PROMPTS,
 } from "./consts";
+import { stopSessionVoteReminderJob } from "./cron/weekly-reminders";
 import { ButtonId } from "./defs";
 import {
   HELLO_MILES_ID_PREFIX,
   HELLO_MILES_VARIANTS,
-} from "./utils/hello-miles/hello-miles.constants";
+} from "./hello-miles/hello-miles.constants";
 import { customizeText, getPingResponse, getRandomString } from "./utils/utils";
 
 let knockKnockFlag1: string[] = [];
@@ -26,8 +27,14 @@ export const helloMiles = (msg: Message<boolean>): void => {
       const text = msg.content.slice(variant.length).trim();
 
       switch (text) {
-        default:
+        case "stop":
+          stopSessionVoteReminderJob();
+          msg.reply("Session vote reminder job stopped.");
+          break;
+        case "":
           helloMilesDefault(msg);
+          break;
+        default:
           break;
       }
     }

@@ -1,4 +1,5 @@
 export const HELLO_MILES_VARIANTS: string[] = [
+  "miles",
   "hello miles",
   "hi miles",
   "hey miles",
