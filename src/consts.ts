@@ -165,3 +165,5 @@ export const MILES_KNOCK_KNOCK_RESPONSES: string[] = [
   "Great! Don't leave Miles behind in the laughs.",
   "Haha! Miles is part of the joke now.",
 ];
+
+export const NO_DM_ROLE_MSG = "You do not have the DM role.";

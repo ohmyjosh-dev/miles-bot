@@ -10,7 +10,7 @@ import {
   CONFIRM_DELETE_CAMPAIGN,
   VIEW_CAMPAIGN_BUTTON_ID_PREFIX,
 } from "./consts";
-import { startSessionVoteReminderJob } from "./cron/weekly-reminders";
+import { sessionVoteReminderJobInit } from "./cron/weekly-reminders";
 import { getDbConnection } from "./database";
 import { ButtonId, CommandName, OptionName } from "./defs";
 import { deployCommands } from "./deploy-commands";
@@ -244,6 +244,6 @@ client.on("messageCreate", (msg) => {
 });
 
 /** cron jobs */
-startSessionVoteReminderJob();
+sessionVoteReminderJobInit();
 
 client.login(config.DISCORD_TOKEN);
