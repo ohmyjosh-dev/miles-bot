@@ -8,11 +8,18 @@ import {
   MILES_KNOCK_KNOCK_RESPONSES,
   MILES_SEE_CAMPAIGNS_PROMPTS,
 } from "./consts";
+import {
+  startSessionVoteReminderJob,
+  stopSessionVoteReminderJob,
+} from "./cron/weekly-reminders";
 import { ButtonId } from "./defs";
 import {
   HELLO_MILES_ID_PREFIX,
   HELLO_MILES_VARIANTS,
-} from "./utils/hello-miles/hello-miles.constants";
+  HelloMilesCommand,
+  START_SESSION_VOTE_TIMER_VARIANTS,
+  STOP_SESSION_VOTE_TIMER_VARIANTS,
+} from "./hello-miles/hello-miles.constants";
 import { customizeText, getPingResponse, getRandomString } from "./utils/utils";
 
 let knockKnockFlag1: string[] = [];
@@ -22,13 +29,15 @@ export const helloMiles = (msg: Message<boolean>): void => {
   // if msg.content.toLowerCase() starts with any of the strings from the array HELLO_MILES_VARIANTS,
   // then get all of the text following it and reply with that text
   HELLO_MILES_VARIANTS.forEach((variant) => {
-    if (msg.content.toLowerCase().startsWith(variant)) {
-      const text = msg.content.slice(variant.length).trim();
-
-      switch (text) {
-        default:
-          helloMilesDefault(msg);
-          break;
+    if (msg.content.toLowerCase().startsWith(variant.toLowerCase())) {
+      const text = msg.content.slice(variant.length).trim().toLowerCase();
+      // yeah i wish i could do a switch statement here too
+      if (START_SESSION_VOTE_TIMER_VARIANTS.includes(text)) {
+        msg.reply(startSessionVoteReminderJob(msg.member));
+      } else if (STOP_SESSION_VOTE_TIMER_VARIANTS.includes(text)) {
+        msg.reply(stopSessionVoteReminderJob(msg.member));
+      } else if (HelloMilesCommand.Default.toLowerCase() === text) {
+        helloMilesDefault(msg);
       }
     }
   });

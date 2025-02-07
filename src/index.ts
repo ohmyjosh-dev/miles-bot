@@ -4,20 +4,21 @@ import {
   Client,
   GatewayIntentBits,
 } from "discord.js";
-import { commands } from "./commands";
-import { handleDeleteConfirmation } from "./commands/delete-campaign";
 import { config } from "./config";
 import {
   CANCEL_BUTTON_ID,
   CONFIRM_DELETE_CAMPAIGN,
   VIEW_CAMPAIGN_BUTTON_ID_PREFIX,
 } from "./consts";
+import { sessionVoteReminderJobInit } from "./cron/weekly-reminders";
 import { getDbConnection } from "./database";
 import { ButtonId, CommandName, OptionName } from "./defs";
 import { deployCommands } from "./deploy-commands";
 import { helloMiles } from "./hello-miles";
+import { HELLO_MILES_ID_PREFIX } from "./hello-miles/hello-miles.constants";
+import { commands } from "./slash-commands";
+import { handleDeleteConfirmation } from "./slash-commands/delete-campaign";
 import { sendCampaignDetails, sendCampaigns } from "./utils/campaign-helpers";
-import { HELLO_MILES_ID_PREFIX } from "./utils/hello-miles/hello-miles.constants";
 // import { startSchedulers } from "./scheduler/scheduler"; // Uncomment if you have schedulers
 
 const client = new Client({
@@ -35,6 +36,11 @@ client.once("ready", async () => {
   for (const guildId of guilds) {
     await deployCommands({ guildId });
   }
+
+  const biggerBetterInn = client.guilds.cache.get("1021067585141354517");
+
+  /** cron jobs */
+  sessionVoteReminderJobInit(biggerBetterInn);
 
   // Start the scheduled tasks
   // startSchedulers(); // Uncomment if you have schedulers

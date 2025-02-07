@@ -6,6 +6,7 @@ export const TEST_ENV_WARNING =
 
 export const ERROR_COLOR = 0xd80032;
 export const SUCCESS_COLOR = 0x23ce6b;
+export const CELESTIAL_BLUE = 0x39a0ed;
 
 export const DM_ROLE_NAME = "DM";
 
@@ -165,3 +166,5 @@ export const MILES_KNOCK_KNOCK_RESPONSES: string[] = [
   "Great! Don't leave Miles behind in the laughs.",
   "Haha! Miles is part of the joke now.",
 ];
+
+export const NO_DM_ROLE_MSG = "You do not have the DM role.";

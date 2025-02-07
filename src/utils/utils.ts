@@ -1,8 +1,14 @@
 // src/utils.ts
-import { ChatInputCommandInteraction, EmbedBuilder } from "discord.js";
+import {
+  ChatInputCommandInteraction,
+  ColorResolvable,
+  EmbedBuilder,
+  GuildMember,
+} from "discord.js";
 import { Database } from "sqlite";
 import { BOT_ENV } from "../config";
 import {
+  DM_ROLE_NAME,
   ERROR_COLOR,
   MILES_RANDOM_RESPONSES,
   SUCCESS_COLOR,
@@ -10,6 +16,7 @@ import {
 } from "../consts";
 import { getDbConnection } from "../database";
 import { environment } from "../defs";
+import { ErrorCode } from "../hello-miles/hello-miles.constants";
 
 export const isDevelopment = BOT_ENV === environment.dev;
 
@@ -153,6 +160,29 @@ export function createSuccessEmbed(
   return embed;
 }
 
+export function createEmbed(
+  title: string,
+  options?: {
+    description?: string;
+    color?: ColorResolvable;
+    showTimeStamp?: boolean;
+  },
+): EmbedBuilder {
+  const embed = new EmbedBuilder()
+    .setTitle(customizeText(title))
+    .setColor(options?.color ?? SUCCESS_COLOR);
+
+  if (options?.description) {
+    embed.setDescription(options.description);
+  }
+
+  if (options?.showTimeStamp) {
+    embed.setTimestamp();
+  }
+
+  return embed;
+}
+
 export function customizeFooter(props: { text: string }): { text: string } {
   return { text: customizeText(props.text) };
 }
@@ -209,4 +239,23 @@ export function getSuccessString(
   options?: { partyPopper?: boolean },
 ): string {
   return `${options?.partyPopper ? "🎉" : "✅"} ${text}`;
+}
+
+export function hasDmRole(member: GuildMember): boolean {
+  return member.roles.cache.some(
+    (role) => role.name.toLowerCase() === DM_ROLE_NAME.toLowerCase(),
+  );
+}
+
+export function getErrorStringWithCode(
+  errorCode: ErrorCode,
+  text?: string,
+): string {
+  let errorText = "Something went wrong.";
+
+  if (text?.trim().length) {
+    errorText = text;
+  }
+
+  return getErrorString(`${errorText} - Error Code: ${errorCode}`);
 }
