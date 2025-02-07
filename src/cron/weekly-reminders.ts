@@ -90,9 +90,9 @@ function sessionVoteWeeklyReminder(): void {
   });
 
   if (channel && "send" in channel && typeof channel.send === "function") {
-    channel.send(`${roleId}`);
     channel
       ?.send({
+        content: `${roleId}`,
         embeds: [embed],
       })
       .then((embedMessage) => {
