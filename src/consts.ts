@@ -6,6 +6,7 @@ export const TEST_ENV_WARNING =
 
 export const ERROR_COLOR = 0xd80032;
 export const SUCCESS_COLOR = 0x23ce6b;
+export const CELESTIAL_BLUE = 0x39a0ed;
 
 export const DM_ROLE_NAME = "DM";
 

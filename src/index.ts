@@ -37,6 +37,11 @@ client.once("ready", async () => {
     await deployCommands({ guildId });
   }
 
+  const biggerBetterInn = client.guilds.cache.get("1021067585141354517");
+
+  /** cron jobs */
+  sessionVoteReminderJobInit(biggerBetterInn);
+
   // Start the scheduled tasks
   // startSchedulers(); // Uncomment if you have schedulers
 });
@@ -242,8 +247,5 @@ client.on("messageCreate", (msg) => {
 
   helloMiles(msg);
 });
-
-/** cron jobs */
-sessionVoteReminderJobInit();
 
 client.login(config.DISCORD_TOKEN);

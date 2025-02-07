@@ -1,6 +1,7 @@
 // src/utils.ts
 import {
   ChatInputCommandInteraction,
+  ColorResolvable,
   EmbedBuilder,
   GuildMember,
 } from "discord.js";
@@ -154,6 +155,29 @@ export function createSuccessEmbed(
 
   if (description) {
     embed.setDescription(description);
+  }
+
+  return embed;
+}
+
+export function createEmbed(
+  title: string,
+  options?: {
+    description?: string;
+    color?: ColorResolvable;
+    showTimeStamp?: boolean;
+  },
+): EmbedBuilder {
+  const embed = new EmbedBuilder()
+    .setTitle(customizeText(title))
+    .setColor(options?.color ?? SUCCESS_COLOR);
+
+  if (options?.description) {
+    embed.setDescription(options.description);
+  }
+
+  if (options?.showTimeStamp) {
+    embed.setTimestamp();
   }
 
   return embed;
