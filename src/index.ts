@@ -10,7 +10,7 @@ import {
   CONFIRM_DELETE_CAMPAIGN,
   VIEW_CAMPAIGN_BUTTON_ID_PREFIX,
 } from "./consts";
-import { sessionVoteReminderJobInit } from "./cron/weekly-reminders";
+import { sessionVoteReminderJobInit } from "./cron/reminders";
 import { getDbConnection } from "./database";
 import { ButtonId, CommandName, OptionName } from "./defs";
 import { deployCommands } from "./deploy-commands";

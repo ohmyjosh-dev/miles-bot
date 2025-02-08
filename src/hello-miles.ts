@@ -11,7 +11,7 @@ import {
 import {
   startSessionVoteReminderJob,
   stopSessionVoteReminderJob,
-} from "./cron/weekly-reminders";
+} from "./cron/reminders";
 import { ButtonId } from "./defs";
 import {
   HELLO_MILES_ID_PREFIX,
