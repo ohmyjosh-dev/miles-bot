@@ -54,6 +54,7 @@ export async function getDbConnection(): Promise<
       description TEXT NOT NULL,
       channel_id TEXT NOT NULL,
       cron_expression TEXT NOT NULL,
+      started BOOLEAN NOT NULL DEFAULT 0,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       UNIQUE(guild_id, name) 
     );
