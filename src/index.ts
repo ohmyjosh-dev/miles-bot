@@ -134,6 +134,8 @@ client.on("interactionCreate", async (interaction) => {
       content: "This button interaction is not recognized.",
       ephemeral: true,
     });
+
+    return;
   }
 
   if (interaction.isAutocomplete()) {
