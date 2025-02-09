@@ -139,7 +139,10 @@ export async function listReminders(msg: Message<boolean>): Promise<void> {
           return `• **${r.name}**\nCron: \`${r.cron_expression}\`\nNext Run: \`${nextRun}\`\nChannel: \`${r.channel_id}\``;
         })
         .join("\n\n");
-      const embed = createEmbed("Reminders", { description: reminderList });
+      const embed = createEmbed("Reminders", {
+        description: reminderList,
+        color: CELESTIAL_BLUE,
+      });
       msg.reply({ embeds: [embed] });
     }
   } catch (error: any) {
