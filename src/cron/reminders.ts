@@ -1,7 +1,8 @@
 import { CronJob } from "cron";
-import { Guild, GuildMember } from "discord.js";
-import { CELESTIAL_BLUE, NO_DM_ROLE_MSG } from "../consts";
-import { ErrorCode } from "../hello-miles/hello-miles.constants";
+import cronParser from "cron-parser";
+import { Guild, GuildMember, Message } from "discord.js";
+import { CELESTIAL_BLUE, ErrorCode, NO_DM_ROLE_MSG } from "../consts";
+import { getDbConnection } from "../database";
 import {
   createEmbed,
   getErrorString,
@@ -99,5 +100,54 @@ function sessionVoteWeeklyReminder(): void {
         embedMessage.react("👍");
         embedMessage.react("👎");
       });
+  }
+}
+
+export async function listReminders(msg: Message<boolean>): Promise<void> {
+  if (!msg.guild) {
+    msg.reply(getErrorString("This command can only be used in a server."));
+    return;
+  }
+  try {
+    const db = await getDbConnection();
+    const guildId = msg.guild.id;
+    const result = await db.all<{
+      name: string;
+      cron_expression: string;
+      channel_id: string;
+    }>(
+      `SELECT name, cron_expression, channel_id FROM reminders WHERE guild_id = $guildId`,
+      { $guildId: guildId },
+    );
+    const reminders = Array.isArray(result) ? result : [result];
+    if (reminders.length === 0) {
+      const embed = createEmbed("Reminders", {
+        description: "No reminders found.",
+      });
+      msg.reply({ embeds: [embed] });
+    } else {
+      const reminderList = reminders
+        .map((r) => {
+          let nextRun = "Invalid cron";
+          try {
+            const interval = cronParser.parseExpression(r.cron_expression);
+            nextRun = interval.next().toLocaleString();
+          } catch (err) {
+            // Keep default value if parsing fails.
+          }
+          return `• **${r.name}** – Cron: \`${r.cron_expression}\`, Next Run: \`${nextRun}\`, Channel: \`${r.channel_id}\``;
+        })
+        .join("\n");
+      const embed = createEmbed("Reminders", { description: reminderList });
+      msg.reply({ embeds: [embed] });
+    }
+  } catch (error: any) {
+    console.error(error);
+    msg.reply(
+      getErrorStringWithCode(
+        ErrorCode.ReminderRetrievalFailed,
+        "Failed to retrieve reminders.",
+      ),
+    );
   }
 }

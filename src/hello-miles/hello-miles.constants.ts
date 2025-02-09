@@ -26,29 +26,7 @@ export const SET_NEXT_SESSION_VARIANTS: string[] = ["set next session"];
 
 export const HELLO_MILES_ID_PREFIX = "hello_miles_";
 
-export const START_SESSION_VOTE_TIMER_VARIANTS: string[] = [
-  "start session vote timer",
-  "start the session vote timer",
-  "start svt",
-  "start the svt",
-  "start session vote",
-  "start vote timer",
-];
-
-export const STOP_SESSION_VOTE_TIMER_VARIANTS: string[] = [
-  "stop session vote timer",
-  "stop the session vote timer",
-  "stop svt",
-  "stop the svt",
-  "stop session vote",
-  "stop vote timer",
-];
-
 export enum HelloMilesCommand {
   Default = "",
-}
-
-export enum ErrorCode {
-  NoMemberStartSessionVoteReminder = "SR-0000",
-  NoMemberStopSessionVoteReminder = "SR-0001",
+  listReminders = "list-reminders",
 }

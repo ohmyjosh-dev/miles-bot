@@ -168,3 +168,11 @@ export const MILES_KNOCK_KNOCK_RESPONSES: string[] = [
 ];
 
 export const NO_DM_ROLE_MSG = "You do not have the DM role.";
+
+// Updated ErrorCode enum with new key and value
+export enum ErrorCode {
+  NoMemberStartSessionVoteReminder = "SR-0000",
+  NoMemberStopSessionVoteReminder = "SR-0001",
+  AddReminderFailed = "AddReminder Failed",
+  ReminderRetrievalFailed = "RR-0000", // newly added error code
+}

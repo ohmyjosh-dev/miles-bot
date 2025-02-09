@@ -45,5 +45,19 @@ export async function getDbConnection(): Promise<
     );
   `);
 
+  // New reminders table
+  await db.exec(`
+    CREATE TABLE IF NOT EXISTS reminders (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      guild_id TEXT NOT NULL,
+      name TEXT NOT NULL, 
+      description TEXT NOT NULL,
+      channel_id TEXT NOT NULL,
+      cron_expression TEXT NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      UNIQUE(guild_id, name) 
+    );
+  `);
+
   return db;
 }

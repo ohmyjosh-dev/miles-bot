@@ -1,4 +1,5 @@
 // src/commands/index.ts
+import * as addReminder from "./add-reminder";
 import * as deleteCampaign from "./delete-campaign";
 import * as deleteInfo from "./delete-info";
 import * as listCampaigns from "./list-campaigns";
@@ -13,4 +14,5 @@ export const commands = {
   [listCampaigns.data.name]: listCampaigns,
   [deleteInfo.data.name]: deleteInfo,
   [deleteCampaign.data.name]: deleteCampaign,
+  [addReminder.command.data.name]: addReminder.command,
 };
