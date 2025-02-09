@@ -10,7 +10,7 @@ import {
   CONFIRM_DELETE_CAMPAIGN,
   VIEW_CAMPAIGN_BUTTON_ID_PREFIX,
 } from "./consts";
-import { sessionVoteReminderJobInit } from "./cron/reminders";
+import { loadAndStartReminderJobs } from "./cron/reminders";
 import { getDbConnection } from "./database";
 import { ButtonId, CommandName, OptionName } from "./defs";
 import { deployCommands } from "./deploy-commands";
@@ -37,10 +37,8 @@ client.once("ready", async () => {
     await deployCommands({ guildId });
   }
 
-  const biggerBetterInn = client.guilds.cache.get("1021067585141354517");
-
   /** cron jobs */
-  sessionVoteReminderJobInit(biggerBetterInn);
+  await loadAndStartReminderJobs(); // Load and start reminder jobs from DB
 
   // Start the scheduled tasks
   // startSchedulers(); // Uncomment if you have schedulers
