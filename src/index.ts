@@ -237,31 +237,6 @@ client.on("interactionCreate", async (interaction) => {
       }
     }
 
-    // Add autocomplete for reminder deletion
-    if (interaction.commandName === CommandName.milesDeleteReminder) {
-      const focusedOption = interaction.options.getFocused(true);
-      const db = await getDbConnection();
-      const guildId = interaction.guildId;
-      if (!guildId) return interaction.respond([]);
-      try {
-        const results: { name: string }[] = await db.all(
-          `SELECT name FROM reminders WHERE guild_id = $guildId AND name LIKE $value ORDER BY name ASC LIMIT 25`,
-          {
-            $guildId: guildId,
-            $value: `%${focusedOption.value}%`,
-          },
-        );
-        const choices = results.map((row) => ({
-          name: row.name,
-          value: row.name,
-        }));
-        return interaction.respond(choices);
-      } catch (error) {
-        console.error("Autocomplete error for delete-reminder:", error);
-        return interaction.respond([]);
-      }
-    }
-
     // Add autocomplete for add-reminder channel option
     if (interaction.commandName === CommandName.milesAddReminder) {
       const focusedOption = interaction.options.getFocused(true);
@@ -289,6 +264,34 @@ client.on("interactionCreate", async (interaction) => {
           )
           .slice(0, 25); // Discord limit
         return interaction.respond(choices);
+      }
+    }
+
+    // Combined autocomplete branch for start-stop and delete reminder commands
+    if (
+      interaction.commandName === CommandName.milesStartStopReminder ||
+      interaction.commandName === CommandName.milesDeleteReminder
+    ) {
+      const focusedOption = interaction.options.getFocused(true);
+      const db = await getDbConnection();
+      const guildId = interaction.guildId;
+      if (!guildId) return interaction.respond([]);
+      try {
+        const results: { name: string }[] = await db.all(
+          `SELECT name FROM reminders WHERE guild_id = $guildId AND name LIKE $value ORDER BY name ASC LIMIT 25`,
+          {
+            $guildId: guildId,
+            $value: `%${focusedOption.value}%`,
+          },
+        );
+        const choices = results.map((row) => ({
+          name: row.name,
+          value: row.name,
+        }));
+        return interaction.respond(choices);
+      } catch (error) {
+        console.error("Autocomplete error for reminders:", error);
+        return interaction.respond([]);
       }
     }
   }

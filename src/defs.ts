@@ -10,8 +10,9 @@ export enum CommandName {
   milesDeleteCampaign = "miles-delete-campaign",
   milesDeleteInfo = "miles-delete-info",
   milesUpdateInfo = "miles-update-info",
-  milesDeleteReminder = "miles-delete-reminder", // newly added
-  milesAddReminder = "miles-add-reminder", // newly added
+  milesDeleteReminder = "miles-delete-reminder",
+  milesAddReminder = "miles-add-reminder",
+  milesStartStopReminder = "miles-start-stop-reminder",
 }
 
 export enum OptionName {
