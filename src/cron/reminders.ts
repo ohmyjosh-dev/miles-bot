@@ -119,9 +119,10 @@ export async function listReminders(msg: Message<boolean>): Promise<void> {
     msg.reply(getErrorString("This command can only be used in a server."));
     return;
   }
+  const guild = msg.guild; // new line to ensure non-null reference
   try {
     const db = await getDbConnection();
-    const guildId = msg.guild.id;
+    const guildId = guild.id;
     // Include the "started" column in the query
     const result = await db.all<{
       name: string;
@@ -154,7 +155,10 @@ export async function listReminders(msg: Message<boolean>): Promise<void> {
           if (!started) {
             nextRun = `**Stopped.** Next run would be ${nextRun}`;
           }
-          return `• **${r.name}**\nCron: \`${r.cron_expression}\`\nNext Run: \`${nextRun}\`\nChannel: \`${r.channel_id}\`\nStatus: **${status}**`;
+          // Retrieve channel name from guild cache; fallback to channel_id if not found.
+          const channelName =
+            guild.channels.cache.get(r.channel_id)?.name || r.channel_id;
+          return `• **${r.name}**\nCron: \`${r.cron_expression}\`\nNext Run: \`${nextRun}\`\nChannel: \`${channelName}\`\nStatus: **${status}**`;
         })
         .join("\n\n");
       const embed = createEmbed("Reminders", {
