@@ -238,6 +238,61 @@ client.on("interactionCreate", async (interaction) => {
         return await interaction.respond([]);
       }
     }
+
+    // Add autocomplete for reminder deletion
+    if (interaction.commandName === CommandName.milesDeleteReminder) {
+      const focusedOption = interaction.options.getFocused(true);
+      const db = await getDbConnection();
+      const guildId = interaction.guildId;
+      if (!guildId) return interaction.respond([]);
+      try {
+        const results: { name: string }[] = await db.all(
+          `SELECT name FROM reminders WHERE guild_id = $guildId AND name LIKE $value ORDER BY name ASC LIMIT 25`,
+          {
+            $guildId: guildId,
+            $value: `%${focusedOption.value}%`,
+          },
+        );
+        const choices = results.map((row) => ({
+          name: row.name,
+          value: row.name,
+        }));
+        return interaction.respond(choices);
+      } catch (error) {
+        console.error("Autocomplete error for delete-reminder:", error);
+        return interaction.respond([]);
+      }
+    }
+
+    // Add autocomplete for add-reminder channel option
+    if (interaction.commandName === CommandName.milesAddReminder) {
+      const focusedOption = interaction.options.getFocused(true);
+      if (focusedOption.name === "channel") {
+        const guild = interaction.guild;
+        if (!guild) return interaction.respond([]);
+        // Import ChannelType from discord.js if not imported
+        const { ChannelType } = require("discord.js");
+        // Filter guild channels: text channels (and news channels) only
+        let channels = guild.channels.cache.filter(
+          (ch) =>
+            ch.type === ChannelType.GuildText ||
+            ch.type === ChannelType.GuildAnnouncement,
+        );
+        // Map to choices using channel name and id; filter by focused value
+        let choices = channels
+          .map((ch) => ({
+            name: ch.name,
+            value: ch.id,
+          }))
+          .filter((choice) =>
+            choice.name
+              .toLowerCase()
+              .includes(focusedOption.value.toLowerCase()),
+          )
+          .slice(0, 25); // Discord limit
+        return interaction.respond(choices);
+      }
+    }
   }
 });
 

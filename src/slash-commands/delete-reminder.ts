@@ -2,17 +2,20 @@ import { SlashCommandBuilder } from "@discordjs/builders";
 import { ChatInputCommandInteraction, GuildMember } from "discord.js";
 import { DM_ROLE_NAME, ErrorCode } from "../consts";
 import { getDbConnection } from "../database";
+import { CommandName } from "../defs";
 import { getErrorString, getSuccessString } from "../utils/utils";
 
 export const command = {
   data: new SlashCommandBuilder()
-    .setName("miles-delete-reminder")
+    .setName(CommandName.milesDeleteReminder)
     .setDescription("Delete an existing reminder")
-    .addStringOption((option) =>
-      option
-        .setName("name")
-        .setDescription("Name of the reminder to delete")
-        .setRequired(true),
+    .addStringOption(
+      (option) =>
+        option
+          .setName("name")
+          .setDescription("Name of the reminder to delete")
+          .setRequired(true)
+          .setAutocomplete(true), // updated to enable autocomplete
     ),
   async execute(interaction: ChatInputCommandInteraction) {
     // Ensure only a DM can run this command

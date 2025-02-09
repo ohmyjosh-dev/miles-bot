@@ -2,11 +2,12 @@ import { SlashCommandBuilder } from "@discordjs/builders";
 import { ChatInputCommandInteraction, GuildMember } from "discord.js";
 import { DM_ROLE_NAME, ErrorCode } from "../consts";
 import { getDbConnection } from "../database";
+import { CommandName } from "../defs";
 import { getErrorString, getSuccessString } from "../utils/utils";
 
 export const command = {
   data: new SlashCommandBuilder()
-    .setName("miles-add-reminder")
+    .setName(CommandName.milesAddReminder)
     .setDescription("Add a new reminder")
     .addStringOption((option) =>
       option
@@ -26,11 +27,13 @@ export const command = {
         .setDescription("Cron expression for the reminder")
         .setRequired(true),
     )
-    .addStringOption((option) =>
-      option
-        .setName("channel")
-        .setDescription("Channel ID to send the reminder")
-        .setRequired(true),
+    .addStringOption(
+      (option) =>
+        option
+          .setName("channel")
+          .setDescription("Channel ID to send the reminder")
+          .setRequired(true)
+          .setAutocomplete(true), // enable autocomplete for channel names
     ),
   async execute(interaction: ChatInputCommandInteraction) {
     // Ensure only a DM can run this command
