@@ -9,6 +9,39 @@ import {
   getErrorStringWithCode,
 } from "../utils/utils";
 
+export async function loadAndStartReminderJobs(): Promise<void> {
+  try {
+    const db = await getDbConnection();
+    // Retrieve all reminders regardless of start status
+    const reminders = await db.all<
+      {
+        name: string;
+        cron_expression: string;
+        channel_id: string;
+        started: number;
+      }[]
+    >(`SELECT name, cron_expression, channel_id, started FROM reminders`);
+
+    for (const reminder of reminders) {
+      const job = CronJob.from({
+        cronTime: reminder.cron_expression,
+        onTick: async () => {
+          console.log(`Reminder triggered: ${reminder.name}`);
+          // ...existing code...
+        },
+        // Set the job's start state based on the "started" field (1 = start, 0 = do not start)
+        start: reminder.started === 1,
+        timeZone: "America/New_York",
+      });
+      console.log(
+        `Reminder "${reminder.name}" created with start set to ${reminder.started === 1}`,
+      );
+    }
+  } catch (err) {
+    console.error("Failed to load and start reminder jobs:", err);
+  }
+}
+
 export async function listReminders(msg: Message<boolean>): Promise<void> {
   if (!msg.guild) {
     msg.reply(getErrorString("This command can only be used in a server."));
@@ -59,30 +92,5 @@ export async function listReminders(msg: Message<boolean>): Promise<void> {
         "Failed to retrieve reminders.",
       ),
     );
-  }
-}
-
-export async function loadAndStartReminderJobs(): Promise<void> {
-  try {
-    const db = await getDbConnection();
-    const reminders = await db.all<
-      { name: string; cron_expression: string; channel_id: string }[]
-    >(`SELECT name, cron_expression, channel_id FROM reminders`);
-
-    for (const reminder of reminders) {
-      const job = CronJob.from({
-        cronTime: reminder.cron_expression,
-        onTick: async () => {
-          // ...existing code...
-          console.log(`Reminder triggered: ${reminder.name}`);
-          // Add functionality to fetch the channel and send message to reminder.channel_id if needed.
-        },
-        start: true,
-        timeZone: "America/New_York",
-      });
-      console.log(`Started reminder job: ${reminder.name}`);
-    }
-  } catch (err) {
-    console.error("Failed to load and start reminder jobs:", err);
   }
 }

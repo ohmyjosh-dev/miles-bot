@@ -34,6 +34,13 @@ export const command = {
           .setDescription("Channel ID to send the reminder")
           .setRequired(true)
           .setAutocomplete(true), // enable autocomplete for channel names
+    )
+    // New optional boolean option to start the reminder on create
+    .addBooleanOption((option) =>
+      option
+        .setName("start-on-create")
+        .setDescription("Start reminder on create")
+        .setRequired(false),
     ),
   async execute(interaction: ChatInputCommandInteraction) {
     // Ensure only a DM can run this command
@@ -57,6 +64,8 @@ export const command = {
     const description = interaction.options.getString("description", true);
     const cron = interaction.options.getString("cron", true);
     const channel = interaction.options.getString("channel", true);
+    // Retrieve the new boolean option, defaulting to false if not provided
+    const startOption = interaction.options.getBoolean("start") ?? false;
     const guildId = interaction.guild?.id;
 
     if (!guildId) {
@@ -69,14 +78,15 @@ export const command = {
     try {
       const db = await getDbConnection();
       await db.run(
-        `INSERT INTO reminders (guild_id, name, channel_id, cron_expression, description)
-         VALUES ($guildId, $name, $channel, $cron, $description)`,
+        `INSERT INTO reminders (guild_id, name, channel_id, cron_expression, description, started)
+         VALUES ($guildId, $name, $channel, $cron, $description, $started)`,
         {
           $guildId: guildId,
           $name: name,
           $channel: channel,
           $cron: cron,
           $description: description,
+          $started: startOption,
         },
       );
       await interaction.reply(
