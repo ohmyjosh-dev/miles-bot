@@ -10,13 +10,13 @@ import { BOT_ENV } from "../config";
 import {
   DM_ROLE_NAME,
   ERROR_COLOR,
+  ErrorCode,
   MILES_RANDOM_RESPONSES,
   SUCCESS_COLOR,
   VALID_UUID_REGEX,
 } from "../consts";
 import { getDbConnection } from "../database";
 import { environment } from "../defs";
-import { ErrorCode } from "../hello-miles/hello-miles.constants";
 
 export const isDevelopment = BOT_ENV === environment.dev;
 

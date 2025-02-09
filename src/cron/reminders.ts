@@ -123,6 +123,7 @@ export async function listReminders(msg: Message<boolean>): Promise<void> {
     if (reminders.length === 0) {
       const embed = createEmbed("Reminders", {
         description: "No reminders found.",
+        color: CELESTIAL_BLUE,
       });
       msg.reply({ embeds: [embed] });
     } else {
@@ -135,9 +136,9 @@ export async function listReminders(msg: Message<boolean>): Promise<void> {
           } catch (err) {
             // Keep default value if parsing fails.
           }
-          return `• **${r.name}** – Cron: \`${r.cron_expression}\`, Next Run: \`${nextRun}\`, Channel: \`${r.channel_id}\``;
+          return `• **${r.name}**\nCron: \`${r.cron_expression}\`\nNext Run: \`${nextRun}\`\nChannel: \`${r.channel_id}\``;
         })
-        .join("\n");
+        .join("\n\n");
       const embed = createEmbed("Reminders", { description: reminderList });
       msg.reply({ embeds: [embed] });
     }
