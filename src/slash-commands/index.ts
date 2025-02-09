@@ -2,6 +2,7 @@
 import * as addReminder from "./add-reminder";
 import * as deleteCampaign from "./delete-campaign";
 import * as deleteInfo from "./delete-info";
+import * as deleteReminder from "./delete-reminder";
 import * as listCampaigns from "./list-campaigns";
 import * as manageCampaign from "./manage-campaign";
 import * as ping from "./ping";
@@ -15,4 +16,5 @@ export const commands = {
   [deleteInfo.data.name]: deleteInfo,
   [deleteCampaign.data.name]: deleteCampaign,
   [addReminder.command.data.name]: addReminder.command,
+  [deleteReminder.command.data.name]: deleteReminder.command,
 };
