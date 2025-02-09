@@ -1,6 +1,11 @@
 import { CronJob } from "cron";
 import cronParser from "cron-parser";
-import { Message } from "discord.js";
+import {
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  Message,
+} from "discord.js";
 import { client } from "..";
 import { CELESTIAL_BLUE, ErrorCode } from "../consts";
 import { getDbConnection } from "../database";
@@ -16,7 +21,7 @@ const reminderJobs: Record<string, CronJob> = {};
 export async function loadAndStartReminderJobs(): Promise<void> {
   try {
     const db = await getDbConnection();
-    // Retrieve all reminders including description
+    // Retrieve all reminders including reactions
     const reminders = await db.all<
       {
         name: string;
@@ -24,48 +29,22 @@ export async function loadAndStartReminderJobs(): Promise<void> {
         channel_id: string;
         description: string;
         started: number;
+        reactions?: string;
       }[]
     >(
-      `SELECT name, cron_expression, channel_id, description, started FROM reminders`,
+      `SELECT name, cron_expression, channel_id, description, started, reactions FROM reminders`,
     );
 
-    for (const reminder of reminders) {
-      const job = CronJob.from({
-        cronTime: reminder.cron_expression,
-        onTick: async () => {
-          console.log(`Reminder triggered: ${reminder.name}`);
-          // Create an embed with the reminder name and description.
-          const embed = createEmbed(reminder.name, {
-            description: reminder.description,
-            color: CELESTIAL_BLUE,
-          });
-          try {
-            const channel = await client.channels.fetch(reminder.channel_id);
-            // Updated check to ensure channel supports send()
-            if (
-              channel &&
-              "send" in channel &&
-              typeof channel.send === "function"
-            ) {
-              await channel.send({ embeds: [embed] });
-            } else {
-              console.error(
-                `Channel ${reminder.channel_id} does not support sending messages.`,
-              );
-            }
-          } catch (error) {
-            console.error("Error sending reminder embed:", error);
-          }
-        },
-        // Set the job's start state based on the "started" field (1 = start, 0 = do not start)
-        start: reminder.started === 1,
-        timeZone: "America/New_York",
+    reminders.forEach((reminder) => {
+      addReminderJob({
+        name: reminder.name,
+        cron_expression: reminder.cron_expression,
+        channel_id: reminder.channel_id,
+        description: reminder.description,
+        started: reminder.started,
+        reactions: reminder.reactions ? JSON.parse(reminder.reactions) : [],
       });
-      reminderJobs[reminder.name] = job;
-      console.log(
-        `Reminder "${reminder.name}" created with start set to ${reminder.started === 1}`,
-      );
-    }
+    });
   } catch (err) {
     console.error("Failed to load and start reminder jobs:", err);
   }
@@ -184,6 +163,7 @@ export function addReminderJob(reminder: {
   channel_id: string;
   description: string;
   started: number;
+  reactions?: string[]; // new optional reactions property
 }): void {
   const job = CronJob.from({
     cronTime: reminder.cron_expression,
@@ -201,7 +181,20 @@ export function addReminderJob(reminder: {
           "send" in channel &&
           typeof channel.send === "function"
         ) {
-          await channel.send({ embeds: [embed] });
+          if (reminder.reactions?.length) {
+            const buttons = reminder.reactions.map((emoji) =>
+              new ButtonBuilder()
+                .setCustomId(`reminder:${reminder.name}:${emoji}`)
+                .setLabel(emoji)
+                .setStyle(ButtonStyle.Secondary),
+            );
+            const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+              ...buttons,
+            );
+            await channel.send({ embeds: [embed], components: [row] });
+          } else {
+            await channel.send({ embeds: [embed] });
+          }
         } else {
           console.error(
             `Channel ${reminder.channel_id} does not support sending messages.`,

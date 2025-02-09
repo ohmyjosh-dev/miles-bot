@@ -42,6 +42,15 @@ export const command = {
         .setName("start-on-create")
         .setDescription("Start reminder on create")
         .setRequired(false),
+    )
+    .addStringOption(
+      (
+        option, // new reactions option
+      ) =>
+        option
+          .setName("reactions")
+          .setDescription("Comma-separated list of emoji reactions")
+          .setRequired(false),
     ),
   async execute(interaction: ChatInputCommandInteraction) {
     // Ensure only a DM can run this command
@@ -68,6 +77,13 @@ export const command = {
     // Use "start-on-create" option; default to false if not provided.
     const startOption =
       interaction.options.getBoolean("start-on-create") ?? false;
+    const reactionsInput = interaction.options.getString("reactions") || "";
+    const reactions = reactionsInput
+      ? reactionsInput
+          .split(",")
+          .map((e) => e.trim())
+          .filter((e) => e)
+      : [];
     const guildId = interaction.guild?.id;
 
     if (!guildId) {
@@ -80,8 +96,8 @@ export const command = {
     try {
       const db = await getDbConnection();
       await db.run(
-        `INSERT INTO reminders (guild_id, name, channel_id, cron_expression, description, started)
-         VALUES ($guildId, $name, $channel, $cron, $description, $started)`,
+        `INSERT INTO reminders (guild_id, name, channel_id, cron_expression, description, started, reactions)
+         VALUES ($guildId, $name, $channel, $cron, $description, $started, $reactions)`,
         {
           $guildId: guildId,
           $name: name,
@@ -89,6 +105,7 @@ export const command = {
           $cron: cron,
           $description: description,
           $started: startOption,
+          $reactions: JSON.stringify(reactions),
         },
       );
       // Add the new reminder to the running jobs
