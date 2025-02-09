@@ -21,7 +21,7 @@ import { handleDeleteConfirmation } from "./slash-commands/delete-campaign";
 import { sendCampaignDetails, sendCampaigns } from "./utils/campaign-helpers";
 // import { startSchedulers } from "./scheduler/scheduler"; // Uncomment if you have schedulers
 
-const client = new Client({
+export const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildMessages,

@@ -1,6 +1,7 @@
 import { CronJob } from "cron";
 import cronParser from "cron-parser";
 import { Message } from "discord.js";
+import { client } from "..";
 import { CELESTIAL_BLUE, ErrorCode } from "../consts";
 import { getDbConnection } from "../database";
 import {
@@ -15,22 +16,46 @@ const reminderJobs: Record<string, CronJob> = {};
 export async function loadAndStartReminderJobs(): Promise<void> {
   try {
     const db = await getDbConnection();
-    // Retrieve all reminders regardless of start status
+    // Retrieve all reminders including description
     const reminders = await db.all<
       {
         name: string;
         cron_expression: string;
         channel_id: string;
+        description: string;
         started: number;
       }[]
-    >(`SELECT name, cron_expression, channel_id, started FROM reminders`);
+    >(
+      `SELECT name, cron_expression, channel_id, description, started FROM reminders`,
+    );
 
     for (const reminder of reminders) {
       const job = CronJob.from({
         cronTime: reminder.cron_expression,
         onTick: async () => {
           console.log(`Reminder triggered: ${reminder.name}`);
-          // ...existing code...
+          // Create an embed with the reminder name and description.
+          const embed = createEmbed(reminder.name, {
+            description: reminder.description,
+            color: CELESTIAL_BLUE,
+          });
+          try {
+            const channel = await client.channels.fetch(reminder.channel_id);
+            // Updated check to ensure channel supports send()
+            if (
+              channel &&
+              "send" in channel &&
+              typeof channel.send === "function"
+            ) {
+              await channel.send({ embeds: [embed] });
+            } else {
+              console.error(
+                `Channel ${reminder.channel_id} does not support sending messages.`,
+              );
+            }
+          } catch (error) {
+            console.error("Error sending reminder embed:", error);
+          }
         },
         // Set the job's start state based on the "started" field (1 = start, 0 = do not start)
         start: reminder.started === 1,
