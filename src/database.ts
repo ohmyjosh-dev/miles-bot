@@ -56,6 +56,9 @@ export async function getDbConnection(): Promise<
       cron_expression TEXT NOT NULL,
       started BOOLEAN NOT NULL DEFAULT 0,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      reactions TEXT NOT NULL DEFAULT '[]',
+      show_reactions BOOLEAN NOT NULL DEFAULT 1,
+      ping_role TEXT, 
       UNIQUE(guild_id, name) 
     );
   `);
