@@ -1,6 +1,7 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { ChatInputCommandInteraction, GuildMember } from "discord.js";
 import { DM_ROLE_NAME, ErrorCode } from "../consts";
+import { deleteReminder } from "../cron/reminders";
 import { getDbConnection } from "../database";
 import { CommandName } from "../defs";
 import { getErrorString, getSuccessString } from "../utils/utils";
@@ -52,6 +53,7 @@ export const command = {
       );
       // Check if any rows were affected (sqlite returns changes property)
       if (result.changes && result.changes > 0) {
+        await deleteReminder(name); // call to remove timer from reminderJobs map
         await interaction.reply(
           getSuccessString(`Reminder "${name}" successfully deleted.`),
         );

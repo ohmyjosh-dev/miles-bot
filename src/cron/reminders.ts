@@ -102,6 +102,18 @@ export async function setReminderStatus(
   }
 }
 
+export async function deleteReminder(reminderName: string): Promise<void> {
+  // If the job exists, stop it and remove from the reminderJobs object.
+  const job = reminderJobs[reminderName];
+  if (job) {
+    job.stop();
+    delete reminderJobs[reminderName];
+    console.log(`Reminder "${reminderName}" deleted and stopped.`);
+  } else {
+    console.log(`No job found for reminder "${reminderName}".`);
+  }
+}
+
 export async function listReminders(msg: Message<boolean>): Promise<void> {
   if (!msg.guild) {
     msg.reply(getErrorString("This command can only be used in a server."));
@@ -160,4 +172,46 @@ export async function listReminders(msg: Message<boolean>): Promise<void> {
       ),
     );
   }
+}
+
+export function addReminderJob(reminder: {
+  name: string;
+  cron_expression: string;
+  channel_id: string;
+  description: string;
+  started: number;
+}): void {
+  const job = CronJob.from({
+    cronTime: reminder.cron_expression,
+    onTick: async () => {
+      console.log(`Reminder triggered: ${reminder.name}`);
+      // Create an embed with the reminder name and description.
+      const embed = createEmbed(reminder.name, {
+        description: reminder.description,
+        color: CELESTIAL_BLUE,
+      });
+      try {
+        const channel = await client.channels.fetch(reminder.channel_id);
+        if (
+          channel &&
+          "send" in channel &&
+          typeof channel.send === "function"
+        ) {
+          await channel.send({ embeds: [embed] });
+        } else {
+          console.error(
+            `Channel ${reminder.channel_id} does not support sending messages.`,
+          );
+        }
+      } catch (error) {
+        console.error("Error sending reminder embed:", error);
+      }
+    },
+    start: reminder.started === 1,
+    timeZone: "America/New_York",
+  });
+  reminderJobs[reminder.name] = job;
+  console.log(
+    `Reminder "${reminder.name}" created with start set to ${reminder.started === 1}`,
+  );
 }

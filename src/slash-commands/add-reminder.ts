@@ -1,6 +1,7 @@
 import { SlashCommandBuilder } from "@discordjs/builders";
 import { ChatInputCommandInteraction, GuildMember } from "discord.js";
 import { DM_ROLE_NAME, ErrorCode } from "../consts";
+import { addReminderJob } from "../cron/reminders";
 import { getDbConnection } from "../database";
 import { CommandName } from "../defs";
 import { getErrorString, getSuccessString } from "../utils/utils";
@@ -35,7 +36,7 @@ export const command = {
           .setRequired(true)
           .setAutocomplete(true), // enable autocomplete for channel names
     )
-    // New optional boolean option to start the reminder on create
+    // Updated option name to "start-on-create"
     .addBooleanOption((option) =>
       option
         .setName("start-on-create")
@@ -64,8 +65,9 @@ export const command = {
     const description = interaction.options.getString("description", true);
     const cron = interaction.options.getString("cron", true);
     const channel = interaction.options.getString("channel", true);
-    // Retrieve the new boolean option, defaulting to false if not provided
-    const startOption = interaction.options.getBoolean("start") ?? false;
+    // Use "start-on-create" option; default to false if not provided.
+    const startOption =
+      interaction.options.getBoolean("start-on-create") ?? false;
     const guildId = interaction.guild?.id;
 
     if (!guildId) {
@@ -89,6 +91,14 @@ export const command = {
           $started: startOption,
         },
       );
+      // Add the new reminder to the running jobs
+      addReminderJob({
+        name,
+        cron_expression: cron,
+        channel_id: channel,
+        description,
+        started: startOption ? 1 : 0,
+      });
       await interaction.reply(
         getSuccessString(`Reminder "${name}" successfully added.`),
       );
