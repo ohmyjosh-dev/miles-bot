@@ -45,7 +45,6 @@ export async function getDbConnection(): Promise<
     );
   `);
 
-  // New reminders table
   await db.exec(`
     CREATE TABLE IF NOT EXISTS reminders (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -57,7 +56,6 @@ export async function getDbConnection(): Promise<
       started BOOLEAN NOT NULL DEFAULT 0,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       reactions TEXT NOT NULL DEFAULT '[]',
-      show_reactions BOOLEAN NOT NULL DEFAULT 1,
       ping_role TEXT, 
       UNIQUE(guild_id, name) 
     );
