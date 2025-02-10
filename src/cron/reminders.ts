@@ -182,9 +182,9 @@ export function addReminderJob(reminder: {
           typeof channel.send === "function"
         ) {
           if (reminder.reactions?.length) {
-            const buttons = reminder.reactions.map((emoji) =>
+            const buttons = reminder.reactions.map((emoji, index) =>
               new ButtonBuilder()
-                .setCustomId(`reminder:${reminder.name}:${emoji}`)
+                .setCustomId(`reminder:${reminder.name}:${index}:${emoji}`)
                 .setLabel(emoji)
                 .setStyle(ButtonStyle.Secondary),
             );

@@ -29,6 +29,14 @@ export const command = {
         .setRequired(true),
     )
     .addStringOption(
+      (option) =>
+        option
+          .setName("channel")
+          .setDescription("Channel ID to send the reminder")
+          .setRequired(true)
+          .setAutocomplete(true), // enable autocomplete for channel names
+    )
+    .addStringOption(
       (
         option, // new reactions option
       ) =>
@@ -36,14 +44,6 @@ export const command = {
           .setName("reactions")
           .setDescription("Comma-separated list of emoji reactions")
           .setRequired(false),
-    )
-    .addStringOption(
-      (option) =>
-        option
-          .setName("channel")
-          .setDescription("Channel ID to send the reminder")
-          .setRequired(true)
-          .setAutocomplete(true), // enable autocomplete for channel names
     )
     // Updated option name to "start-on-create"
     .addBooleanOption((option) =>

@@ -136,20 +136,20 @@ client.on("interactionCreate", async (interaction) => {
 
     if (customIdLower.startsWith(REMINDERS_BUTTON_ID_PREFIX.toLowerCase())) {
       if (interaction.message.embeds?.length) {
-        const newEmoji = customIdLower.split(":").pop() || "";
+        const [, , rawIndex, emoji] = customIdLower.split(":");
+        const newEmoji = emoji ?? "";
+        const newIndex = parseInt(rawIndex, 10) ?? 0;
         const embed = EmbedBuilder.from(interaction.message.embeds[0]);
-        const description = embed.data.description
-          ? `${embed.data.description}\n`
-          : "";
+        const description = embed.data.description ?? "";
         const lines = description.split("\n");
-        const updatedLines: string[] = [];
+        let updatedLines: string[] = [];
         let emojiFound = false;
 
         // Process each "Reacted with ..." line
         for (const line of lines) {
           const match = line.match(/^Reacted with (.+?): (.*)$/);
           if (!match) {
-            updatedLines.push(line);
+            updatedLines = [...updatedLines, line];
             continue;
           }
           const [, lineEmoji, lineUsers] = match;
@@ -163,19 +163,26 @@ client.on("interactionCreate", async (interaction) => {
 
           // If this line matches the new emoji, re-add the user
           if (lineEmoji === newEmoji) {
-            users.push(interaction.user.tag);
-            updatedLines.push(`Reacted with ${lineEmoji}: ${users.join(", ")}`);
+            users = [...users, interaction.user.tag];
+            updatedLines = [
+              ...updatedLines,
+              `Reacted with ${lineEmoji}: ${users.join(", ")}`,
+            ];
             emojiFound = true;
           } else if (users.length > 0) {
-            updatedLines.push(`Reacted with ${lineEmoji}: ${users.join(", ")}`);
+            updatedLines = [
+              ...updatedLines,
+              `Reacted with ${lineEmoji}: ${users.join(", ")}`,
+            ];
           }
         }
 
         // If the line for the new emoji wasn't found at all, create a new line
         if (!emojiFound && newEmoji) {
-          updatedLines.push(
+          updatedLines = [
+            ...updatedLines,
             `Reacted with ${newEmoji}: ${interaction.user.tag}`,
-          );
+          ];
         }
 
         embed.setDescription(updatedLines.join("\n"));
