@@ -18,15 +18,24 @@ export const command = {
     )
     .addStringOption((option) =>
       option
-        .setName("description")
-        .setDescription("Description for the reminder")
+        .setName("cron")
+        .setDescription("Cron expression for the reminder")
         .setRequired(true),
     )
     .addStringOption((option) =>
       option
-        .setName("cron")
-        .setDescription("Cron expression for the reminder")
+        .setName("description")
+        .setDescription("Description for the reminder")
         .setRequired(true),
+    )
+    .addStringOption(
+      (
+        option, // new reactions option
+      ) =>
+        option
+          .setName("reactions")
+          .setDescription("Comma-separated list of emoji reactions")
+          .setRequired(false),
     )
     .addStringOption(
       (option) =>
@@ -42,15 +51,6 @@ export const command = {
         .setName("start-on-create")
         .setDescription("Start reminder on create")
         .setRequired(false),
-    )
-    .addStringOption(
-      (
-        option, // new reactions option
-      ) =>
-        option
-          .setName("reactions")
-          .setDescription("Comma-separated list of emoji reactions")
-          .setRequired(false),
     ),
   async execute(interaction: ChatInputCommandInteraction) {
     // Ensure only a DM can run this command
@@ -115,6 +115,7 @@ export const command = {
         channel_id: channel,
         description,
         started: startOption ? 1 : 0,
+        reactions,
       });
       await interaction.reply(
         getSuccessString(`Reminder "${name}" successfully added.`),
