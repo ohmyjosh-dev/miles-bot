@@ -28,3 +28,5 @@ export enum OptionName {
 export enum ButtonId {
   campaign = "campaign",
 }
+
+export const REMINDERS_BUTTON_ID_PREFIX = "reminder:";

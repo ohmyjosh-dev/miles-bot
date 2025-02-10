@@ -2,6 +2,7 @@
 import {
   ChatInputCommandInteraction,
   Client,
+  EmbedBuilder,
   GatewayIntentBits,
 } from "discord.js";
 import { config } from "./config";
@@ -12,7 +13,12 @@ import {
 } from "./consts";
 import { loadAndStartReminderJobs } from "./cron/reminders";
 import { getDbConnection } from "./database";
-import { ButtonId, CommandName, OptionName } from "./defs";
+import {
+  ButtonId,
+  CommandName,
+  OptionName,
+  REMINDERS_BUTTON_ID_PREFIX,
+} from "./defs";
 import { deployCommands } from "./deploy-commands";
 import { helloMiles } from "./hello-miles";
 import { HELLO_MILES_ID_PREFIX } from "./hello-miles/hello-miles.constants";
@@ -78,6 +84,7 @@ client.on("interactionCreate", async (interaction) => {
 
   if (interaction.isButton()) {
     const customIdLower = interaction.customId.toLowerCase();
+    console.log("Button interaction detected:", customIdLower);
 
     if (customIdLower.includes(CONFIRM_DELETE_CAMPAIGN.toLowerCase())) {
       try {
@@ -124,6 +131,56 @@ client.on("interactionCreate", async (interaction) => {
     if (customIdLower === `${HELLO_MILES_ID_PREFIX}${ButtonId.campaign}`) {
       await sendCampaigns(interaction.guildId!, false, interaction);
 
+      return;
+    }
+
+    if (customIdLower.startsWith(REMINDERS_BUTTON_ID_PREFIX.toLowerCase())) {
+      if (interaction.message.embeds?.length) {
+        const newEmoji = customIdLower.split(":").pop() || "";
+        const embed = EmbedBuilder.from(interaction.message.embeds[0]);
+        const description = embed.data.description
+          ? `${embed.data.description}\n`
+          : "";
+        const lines = description.split("\n");
+        const updatedLines: string[] = [];
+        let emojiFound = false;
+
+        // Process each "Reacted with ..." line
+        for (const line of lines) {
+          const match = line.match(/^Reacted with (.+?): (.*)$/);
+          if (!match) {
+            updatedLines.push(line);
+            continue;
+          }
+          const [, lineEmoji, lineUsers] = match;
+          let users = lineUsers
+            .split(",")
+            .map((u) => u.trim())
+            .filter(Boolean);
+
+          // Remove this user from any existing emoji list
+          users = users.filter((u) => u !== interaction.user.tag);
+
+          // If this line matches the new emoji, re-add the user
+          if (lineEmoji === newEmoji) {
+            users.push(interaction.user.tag);
+            updatedLines.push(`Reacted with ${lineEmoji}: ${users.join(", ")}`);
+            emojiFound = true;
+          } else if (users.length > 0) {
+            updatedLines.push(`Reacted with ${lineEmoji}: ${users.join(", ")}`);
+          }
+        }
+
+        // If the line for the new emoji wasn't found at all, create a new line
+        if (!emojiFound && newEmoji) {
+          updatedLines.push(
+            `Reacted with ${newEmoji}: ${interaction.user.tag}`,
+          );
+        }
+
+        embed.setDescription(updatedLines.join("\n"));
+        await interaction.update({ embeds: [embed] });
+      }
       return;
     }
 

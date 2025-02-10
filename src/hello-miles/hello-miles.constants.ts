@@ -24,7 +24,7 @@ export const HELLO_MILES_VARIANTS: string[] = [
 
 export const SET_NEXT_SESSION_VARIANTS: string[] = ["set next session"];
 
-export const HELLO_MILES_ID_PREFIX = "hello_miles_";
+export const HELLO_MILES_ID_PREFIX = "hello_miles:";
 
 export enum HelloMilesCommand {
   Default = "",
