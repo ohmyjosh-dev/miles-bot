@@ -4,6 +4,10 @@ import {
   Client,
   EmbedBuilder,
   GatewayIntentBits,
+  ModalBuilder,
+  TextInputBuilder,
+  TextInputStyle,
+  ActionRowBuilder,
 } from "discord.js";
 import { config } from "./config";
 import {
@@ -18,6 +22,7 @@ import {
   CommandName,
   OptionName,
   REMINDERS_BUTTON_ID_PREFIX,
+  ModalId  // Added ModalId import
 } from "./defs";
 import { deployCommands } from "./deploy-commands";
 import { helloMiles } from "./hello-miles";
@@ -25,6 +30,7 @@ import { HELLO_MILES_ID_PREFIX } from "./hello-miles/hello-miles.constants";
 import { commands } from "./slash-commands";
 import { handleDeleteConfirmation } from "./slash-commands/delete-campaign";
 import { sendCampaignDetails, sendCampaigns } from "./utils/campaign-helpers";
+import { handleAddReminderModal } from "./modals/add-reminder-modal";
 // import { startSchedulers } from "./scheduler/scheduler"; // Uncomment if you have schedulers
 
 export const client = new Client({
@@ -191,6 +197,53 @@ client.on("interactionCreate", async (interaction) => {
       return;
     }
 
+    if (interaction.customId === ButtonId.openAddReminderModal) {
+      const modal = new ModalBuilder()
+        .setCustomId(ModalId.addReminderModal) // Updated to use ModalId enum
+        .setTitle('Add Reminder');
+
+      const nameInput = new TextInputBuilder()
+        .setCustomId('name')
+        .setLabel('Name')
+        .setStyle(TextInputStyle.Short)
+        .setRequired(true);
+
+      const descriptionInput = new TextInputBuilder()
+        .setCustomId('description')
+        .setLabel('Description')
+        .setStyle(TextInputStyle.Paragraph)
+        .setRequired(true);
+
+      const cronInput = new TextInputBuilder()
+        .setCustomId('cron')
+        .setLabel('Cron Expression')
+        .setStyle(TextInputStyle.Short)
+        .setRequired(true);
+
+      const channelInput = new TextInputBuilder()
+        .setCustomId('channel')
+        .setLabel('Channel ID')
+        .setStyle(TextInputStyle.Short)
+        .setRequired(true);
+
+      const reactionsInput = new TextInputBuilder()
+        .setCustomId('reactions')
+        .setLabel('Reactions (comma-separated)')
+        .setStyle(TextInputStyle.Short)
+        .setRequired(false);
+
+      const row1 = new ActionRowBuilder<TextInputBuilder>().addComponents(nameInput);
+      const row2 = new ActionRowBuilder<TextInputBuilder>().addComponents(descriptionInput);
+      const row3 = new ActionRowBuilder<TextInputBuilder>().addComponents(cronInput);
+      const row4 = new ActionRowBuilder<TextInputBuilder>().addComponents(channelInput);
+      const row5 = new ActionRowBuilder<TextInputBuilder>().addComponents(reactionsInput);
+
+      modal.addComponents(row1, row2, row3, row4, row5);
+
+      await interaction.showModal(modal);
+      return; // Added return to prevent further replies
+    }
+
     // Handle other button interactions or send a generic error if the button is unrecognized
     // You can choose to ignore unrecognized buttons or notify the user
     // For example:
@@ -200,6 +253,12 @@ client.on("interactionCreate", async (interaction) => {
     });
 
     return;
+  }
+
+  if (interaction.isModalSubmit()) {
+    if (interaction.customId === 'addReminderModal') {
+      await handleAddReminderModal(interaction);
+    }
   }
 
   if (interaction.isAutocomplete()) {
@@ -371,3 +430,17 @@ client.on("messageCreate", (msg) => {
 });
 
 client.login(config.DISCORD_TOKEN);
+
+// Add a global unhandledRejection handler to catch modal timeout/cancellation errors
+process.on('unhandledRejection', (error: unknown) => {
+  if (
+    error &&
+    typeof error === 'object' &&
+    'code' in error &&
+    (error as { code?: string }).code === 'InteractionNotReplied'
+  ) {
+    console.warn('Modal interaction was cancelled, closed, or expired.');
+  } else {
+    console.error('Unhandled Rejection:', error);
+  }
+});
