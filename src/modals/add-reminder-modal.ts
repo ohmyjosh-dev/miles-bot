@@ -1,13 +1,10 @@
-import { GuildMember, ModalSubmitInteraction } from "discord.js";
-import { DM_ROLE_NAME, ErrorCode } from "../consts";
+import { ModalSubmitInteraction, GuildMember } from "discord.js";
 import { addReminderJob } from "../cron/reminders";
 import { getDbConnection } from "../database";
-import { ReminderModalFieldId } from "../defs"; // Updated enum import
 import { getErrorString, getSuccessString } from "../utils/utils";
+import { DM_ROLE_NAME, ErrorCode } from "../consts";
 
-export async function handleAddReminderModal(
-  interaction: ModalSubmitInteraction,
-) {
+export async function handleAddReminderModal(interaction: ModalSubmitInteraction) {
   // Ensure only a DM can run this command
   const member = interaction.member;
   if (!member || !("roles" in member)) {
@@ -25,21 +22,13 @@ export async function handleAddReminderModal(
     return;
   }
 
-  const name = interaction.fields.getTextInputValue(ReminderModalFieldId.name); // Updated usage
-  const description = interaction.fields.getTextInputValue(
-    ReminderModalFieldId.description,
-  ); // Updated usage
-  const cron = interaction.fields.getTextInputValue(ReminderModalFieldId.cron); // Updated usage
-  const channel = interaction.fields.getTextInputValue(
-    ReminderModalFieldId.channel,
-  ); // Updated usage
-  const reactionsInput =
-    interaction.fields.getTextInputValue(ReminderModalFieldId.reactions) || ""; // Updated usage
+  const name = interaction.fields.getTextInputValue("name");
+  const description = interaction.fields.getTextInputValue("description");
+  const cron = interaction.fields.getTextInputValue("cron");
+  const channel = interaction.fields.getTextInputValue("channel");
+  const reactionsInput = interaction.fields.getTextInputValue("reactions") || "";
   const reactions = reactionsInput
-    ? reactionsInput
-        .split(",")
-        .map((e) => e.trim())
-        .filter((e) => e)
+    ? reactionsInput.split(",").map((e) => e.trim()).filter((e) => e)
     : [];
   const guildId = interaction.guild?.id;
 

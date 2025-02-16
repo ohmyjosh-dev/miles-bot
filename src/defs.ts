@@ -32,15 +32,7 @@ export enum ButtonId {
 
 // Add new ModalId enum
 export enum ModalId {
-  addReminderModal = "addReminderModal",
-}
-
-export enum ReminderModalFieldId {
-  name = "name",
-  description = "description",
-  cron = "cron",
-  channel = "channel",
-  reactions = "reactions",
+  addReminderModal = "addReminderModal"
 }
 
 export const REMINDERS_BUTTON_ID_PREFIX = "reminder:";

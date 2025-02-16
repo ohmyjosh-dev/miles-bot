@@ -1,6 +1,5 @@
 // src/index.ts
 import {
-  ActionRowBuilder,
   ChatInputCommandInteraction,
   Client,
   EmbedBuilder,
@@ -8,6 +7,7 @@ import {
   ModalBuilder,
   TextInputBuilder,
   TextInputStyle,
+  ActionRowBuilder,
 } from "discord.js";
 import { config } from "./config";
 import {
@@ -20,18 +20,17 @@ import { getDbConnection } from "./database";
 import {
   ButtonId,
   CommandName,
-  ModalId,
-  OptionName, // Added ModalId import
-  ReminderModalFieldId, // Updated enum import
+  OptionName,
   REMINDERS_BUTTON_ID_PREFIX,
+  ModalId  // Added ModalId import
 } from "./defs";
 import { deployCommands } from "./deploy-commands";
 import { helloMiles } from "./hello-miles";
 import { HELLO_MILES_ID_PREFIX } from "./hello-miles/hello-miles.constants";
-import { handleAddReminderModal } from "./modals/add-reminder-modal";
 import { commands } from "./slash-commands";
 import { handleDeleteConfirmation } from "./slash-commands/delete-campaign";
 import { sendCampaignDetails, sendCampaigns } from "./utils/campaign-helpers";
+import { handleAddReminderModal } from "./modals/add-reminder-modal";
 // import { startSchedulers } from "./scheduler/scheduler"; // Uncomment if you have schedulers
 
 export const client = new Client({
@@ -200,54 +199,44 @@ client.on("interactionCreate", async (interaction) => {
 
     if (interaction.customId === ButtonId.openAddReminderModal) {
       const modal = new ModalBuilder()
-        .setCustomId(ModalId.addReminderModal)
-        .setTitle("Add Reminder");
+        .setCustomId(ModalId.addReminderModal) // Updated to use ModalId enum
+        .setTitle('Add Reminder');
 
       const nameInput = new TextInputBuilder()
-        .setCustomId(ReminderModalFieldId.name) // Updated usage
-        .setLabel("Name")
+        .setCustomId('name')
+        .setLabel('Name')
         .setStyle(TextInputStyle.Short)
         .setRequired(true);
 
       const descriptionInput = new TextInputBuilder()
-        .setCustomId(ReminderModalFieldId.description) // Updated usage
-        .setLabel("Description")
+        .setCustomId('description')
+        .setLabel('Description')
         .setStyle(TextInputStyle.Paragraph)
         .setRequired(true);
 
       const cronInput = new TextInputBuilder()
-        .setCustomId(ReminderModalFieldId.cron) // Updated usage
-        .setLabel("Cron Expression")
+        .setCustomId('cron')
+        .setLabel('Cron Expression')
         .setStyle(TextInputStyle.Short)
         .setRequired(true);
 
       const channelInput = new TextInputBuilder()
-        .setCustomId(ReminderModalFieldId.channel) // Updated usage
-        .setLabel("Channel ID")
+        .setCustomId('channel')
+        .setLabel('Channel ID')
         .setStyle(TextInputStyle.Short)
         .setRequired(true);
 
       const reactionsInput = new TextInputBuilder()
-        .setCustomId(ReminderModalFieldId.reactions) // Updated usage
-        .setLabel("Reactions (comma-separated)")
+        .setCustomId('reactions')
+        .setLabel('Reactions (comma-separated)')
         .setStyle(TextInputStyle.Short)
         .setRequired(false);
 
-      const row1 = new ActionRowBuilder<TextInputBuilder>().addComponents(
-        nameInput,
-      );
-      const row2 = new ActionRowBuilder<TextInputBuilder>().addComponents(
-        descriptionInput,
-      );
-      const row3 = new ActionRowBuilder<TextInputBuilder>().addComponents(
-        cronInput,
-      );
-      const row4 = new ActionRowBuilder<TextInputBuilder>().addComponents(
-        channelInput,
-      );
-      const row5 = new ActionRowBuilder<TextInputBuilder>().addComponents(
-        reactionsInput,
-      );
+      const row1 = new ActionRowBuilder<TextInputBuilder>().addComponents(nameInput);
+      const row2 = new ActionRowBuilder<TextInputBuilder>().addComponents(descriptionInput);
+      const row3 = new ActionRowBuilder<TextInputBuilder>().addComponents(cronInput);
+      const row4 = new ActionRowBuilder<TextInputBuilder>().addComponents(channelInput);
+      const row5 = new ActionRowBuilder<TextInputBuilder>().addComponents(reactionsInput);
 
       modal.addComponents(row1, row2, row3, row4, row5);
 
@@ -267,7 +256,7 @@ client.on("interactionCreate", async (interaction) => {
   }
 
   if (interaction.isModalSubmit()) {
-    if (interaction.customId === "addReminderModal") {
+    if (interaction.customId === 'addReminderModal') {
       await handleAddReminderModal(interaction);
     }
   }
@@ -443,15 +432,15 @@ client.on("messageCreate", (msg) => {
 client.login(config.DISCORD_TOKEN);
 
 // Add a global unhandledRejection handler to catch modal timeout/cancellation errors
-process.on("unhandledRejection", (error: unknown) => {
+process.on('unhandledRejection', (error: unknown) => {
   if (
     error &&
-    typeof error === "object" &&
-    "code" in error &&
-    (error as { code?: string }).code === "InteractionNotReplied"
+    typeof error === 'object' &&
+    'code' in error &&
+    (error as { code?: string }).code === 'InteractionNotReplied'
   ) {
-    console.warn("Modal interaction was cancelled, closed, or expired.");
+    console.warn('Modal interaction was cancelled, closed, or expired.');
   } else {
-    console.error("Unhandled Rejection:", error);
+    console.error('Unhandled Rejection:', error);
   }
 });
