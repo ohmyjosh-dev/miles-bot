@@ -27,12 +27,6 @@ export enum OptionName {
 
 export enum ButtonId {
   campaign = "campaign",
-  openAddReminderModal = "openAddReminderModal", // New button id for add reminder modal
-}
-
-// Add new ModalId enum
-export enum ModalId {
-  addReminderModal = "addReminderModal"
 }
 
 export const REMINDERS_BUTTON_ID_PREFIX = "reminder:";
