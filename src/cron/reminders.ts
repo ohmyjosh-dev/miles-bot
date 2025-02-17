@@ -163,15 +163,35 @@ export function addReminderJob(reminder: {
   channel_id: string;
   description: string;
   started: number;
-  reactions?: string[]; // new optional reactions property
+  reactions?: string[];
 }): void {
   const job = CronJob.from({
     cronTime: reminder.cron_expression,
     onTick: async () => {
       console.log(`Reminder triggered: ${reminder.name}`);
+      let description = `${reminder.description}`;
+
+      /* if (reminder.reactions?.length) {
+        description += `\n\n`;
+
+        // group reactions into 3 per line
+        const groupedReactions: string[][] = [];
+        for (let i = 0; i < reminder.reactions.length; i += 3) {
+          groupedReactions.push(reminder.reactions.slice(i, i + 3));
+        }
+
+        // For each group, append a line with "reacted with <reaction>"
+        groupedReactions.forEach((group) => {
+          const row = group
+            .map((reaction) => `reacted with ${reaction}`)
+            .join(", ");
+          description += row + "\n";
+        });
+      } */
+
       // Create an embed with the reminder name and description.
       const embed = createEmbed(reminder.name, {
-        description: reminder.description,
+        description: description,
         color: CELESTIAL_BLUE,
       });
       try {
@@ -182,16 +202,23 @@ export function addReminderJob(reminder: {
           typeof channel.send === "function"
         ) {
           if (reminder.reactions?.length) {
-            const buttons = reminder.reactions.map((emoji, index) =>
-              new ButtonBuilder()
-                .setCustomId(`reminder:${reminder.name}:${index}:${emoji}`)
-                .setLabel(emoji)
-                .setStyle(ButtonStyle.Secondary),
-            );
-            const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-              ...buttons,
-            );
-            await channel.send({ embeds: [embed], components: [row] });
+            let totalIndex = 0;
+            const rows: ActionRowBuilder<ButtonBuilder>[] = [];
+            for (let i = 0; i < reminder.reactions.length; i += 5) {
+              const group = reminder.reactions.slice(i, i + 5);
+              const buttons = group.map((emoji) =>
+                new ButtonBuilder()
+                  .setCustomId(
+                    `reminder:${reminder.name}:${totalIndex++}:${emoji}`,
+                  )
+                  .setEmoji(emoji) // use emoji instead of label
+                  .setStyle(ButtonStyle.Secondary),
+              );
+              rows.push(
+                new ActionRowBuilder<ButtonBuilder>().addComponents(...buttons),
+              );
+            }
+            await channel.send({ embeds: [embed], components: rows });
           } else {
             await channel.send({ embeds: [embed] });
           }
