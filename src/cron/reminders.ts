@@ -171,7 +171,7 @@ export function addReminderJob(reminder: {
       console.log(`Reminder triggered: ${reminder.name}`);
       let description = `${reminder.description}`;
 
-      /* if (reminder.reactions?.length) {
+      if (reminder.reactions?.length) {
         description += `\n\n`;
 
         // group reactions into 3 per line
@@ -180,14 +180,16 @@ export function addReminderJob(reminder: {
           groupedReactions.push(reminder.reactions.slice(i, i + 3));
         }
 
-        // For each group, append a line with "reacted with <reaction>"
+        // For each group, append a line with "reacted with <reaction>" using non-breaking spaces as separator
         groupedReactions.forEach((group) => {
           const row = group
             .map((reaction) => `reacted with ${reaction}`)
-            .join(", ");
+            .join(
+              "\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0",
+            ); // using non-breaking spaces
           description += row + "\n";
         });
-      } */
+      }
 
       // Create an embed with the reminder name and description.
       const embed = createEmbed(reminder.name, {
